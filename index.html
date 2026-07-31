@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pokédex — Pokémon Encyclopedia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ ANIMATED BACKGROUND ============ -->
+<div class="bg-layer" id="bgLayer" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="sparkles" id="sparkles"></div>
+  <div class="floating-balls" id="floatingBalls"></div>
+</div>
+
+<!-- ============ TOP NAV ============ -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="#" class="brand" id="brandHome">
+      <span class="brand-ball" aria-hidden="true"></span>
+      <span class="brand-text">Pokédex</span>
+    </a>
+
+    <form class="top-search-form" id="topSearchForm" autocomplete="off">
+      <div class="search-box top-search-box" id="topSearchBox">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <input type="text" id="topSearchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search Pikachu, #025, fire..." />
+        <button type="button" class="clear-btn" id="topClearSearch" title="Clear">✕</button>
+      </div>
+      <button type="submit" class="btn btn-primary btn-sm" id="topSearchBtn" data-i18n="searchBtn">Search</button>
+      <div class="suggestions" id="topSuggestions"></div>
+    </form>
+
+    <nav class="nav-actions">
+      <button class="pill-btn lang-btn" id="langToggle" title="Change language">
+        <span id="langLabel">EN</span>
+      </button>
+      <button class="pill-btn icon-only" id="soundToggle" title="Toggle sound" data-i18n-title="navSound">
+        <svg class="icon" id="soundIcon" viewBox="0 0 24 24" fill="none"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 010 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="pill-btn icon-only" id="darkToggle" title="Toggle dark mode" data-i18n-title="navDark">
+        <svg class="icon" id="darkIcon" viewBox="0 0 24 24" fill="none"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" fill="currentColor"/></svg>
+      </button>
+      <div class="more-menu-wrap">
+        <button class="pill-btn" id="moreNavBtn" title="More">
+          <span class="icon-emoji">☰</span>
+          <span data-i18n="moreMenu">More</span>
+        </button>
+        <div class="more-dropdown" id="moreDropdown" hidden>
+          <button class="more-item" id="catalogNavBtn"><span class="icon-emoji">📖</span><span data-i18n="navCatalog">Catalog</span></button>
+          <button class="more-item" id="battleNavBtn"><span class="icon-emoji">⚔️</span><span data-i18n="navBattle">Battle</span></button>
+          <button class="more-item" id="favoritesNavBtn"><span class="icon-emoji">❤️</span><span data-i18n="navFav">Favorites</span> (<span id="favCount">0</span>)</button>
+          <button class="more-item" id="compareNavBtn"><span class="icon-emoji">🔍</span><span data-i18n="compareTitle">Compare</span></button>
+          <button class="more-item" id="guessNavBtn"><span class="icon-emoji">🎮</span><span data-i18n="guessTitle">Who's That Pokémon?</span></button>
+          <button class="more-item" id="quizNavBtn"><span class="icon-emoji">📅</span><span data-i18n="quizTitle">Daily Quiz</span></button>
+          <button class="more-item" id="achievementsNavBtn"><span class="icon-emoji">🏆</span><span data-i18n="achievementsTitle">Achievements</span></button>
+        </div>
+      </div>
+
+    </nav>
+  </div>
+</header>
+
+<main id="mainContent">
+  <!-- ============ HERO / HOME ============ -->
+  <section class="hero" id="heroSection">
+    <div class="hero-illustration" aria-hidden="true"><div class="hero-pokeball spin-slow"></div></div>
+    <h1 class="hero-title" data-i18n-html="heroTitle">Meet every Pokémon,<br>up close.</h1>
+    <p class="hero-sub" data-i18n="heroSub">Search a name or Pokédex number and explore stats, types, evolutions and more.</p>
+
+    <form class="search-form" id="searchForm" autocomplete="off">
+      <div class="search-box" id="heroSearchBox">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2.2"/><path d="M21 21l-4.3-4.3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="Search Pikachu, #025, fire..." />
+        <button type="button" class="clear-btn" id="clearSearch" title="Clear">✕</button>
+      </div>
+      <button type="submit" class="btn btn-primary" id="searchBtn" data-i18n="searchBtn">Search</button>
+      <div class="suggestions" id="suggestions"></div>
+    </form>
+
+    <div class="hero-quick-actions">
+      <button class="btn btn-soft" id="randomBtn" data-i18n="randomBtn">🎲 Random Pokémon</button>
+      <button class="btn btn-soft" id="catalogBtn" data-i18n="catalogBtn">📖 Browse Catalog</button>
+      <button class="btn btn-soft" id="battleBtn" data-i18n="battleBtnHome">⚔️ VS Battle</button>
+      <button class="btn btn-soft" id="compareBtn" data-i18n="compareBtnHome">🔍 Compare</button>
+      <button class="btn btn-soft" id="guessBtn" data-i18n="guessBtnHome">🎮 Guess Game</button>
+      <button class="btn btn-soft" id="quizBtn" data-i18n="quizBtnHome">📅 Daily Quiz</button>
+      <button class="btn btn-soft" id="achievementsBtn" data-i18n="achievementsBtnHome">🏆 Achievements</button>
+      <button class="btn btn-soft" id="clearHistoryBtn" data-i18n="clearHistory">🕑 Clear history</button>
+    </div>
+  </section>
+
+  <!-- ============ LOADING STATE ============ -->
+  <section class="state-panel" id="loadingPanel" hidden>
+    <div class="pokeball-spinner"><div class="pb-inner"></div></div>
+    <div class="dots"><span></span><span></span><span></span></div>
+    <p class="state-text" data-i18n="loadingText">Fetching data from the Pokédex…</p>
+    <div class="skeleton-card">
+      <div class="sk sk-art"></div><div class="sk sk-line w60"></div><div class="sk sk-line w30"></div>
+      <div class="sk sk-row"><div class="sk sk-pill"></div><div class="sk sk-pill"></div></div>
+    </div>
+  </section>
+
+  <!-- ============ ERROR STATE ============ -->
+  <section class="state-panel" id="errorPanel" hidden>
+    <div class="error-art">😵‍💫</div>
+    <h2 data-i18n="errorTitle">Wild error appeared!</h2>
+    <p id="errorMessage">That Pokémon fled before we could find it.</p>
+    <button class="btn btn-primary" id="retryBtn" data-i18n="retry">Try Again</button>
+  </section>
+
+  <!-- ============ POKEMON DETAIL VIEW ============ -->
+  <section class="detail" id="detailView" hidden>
+    <div class="detail-card" id="detailCard"><!-- filled by JS --></div>
+    <div class="nav-controls">
+      <button class="btn btn-soft" id="prevBtn" data-i18n="prev">← Previous</button>
+      <button class="btn btn-soft" id="randomBtn2" data-i18n="random">🎲 Random</button>
+      <button class="btn btn-soft" id="nextBtn" data-i18n="next">Next →</button>
+    </div>
+  </section>
+
+  <!-- ============ CATALOG VIEW ============ -->
+  <section class="catalog" id="catalogView" hidden>
+    <div class="catalog-head">
+      <h1 data-i18n="catalogTitle">📖 Pokémon Catalog</h1>
+      <p data-i18n="catalogSub">Browse every Pokémon — perfect if you can't remember a name.</p>
+      <div class="catalog-filters" id="catalogFilters"></div>
+    </div>
+    <div class="catalog-grid" id="catalogGrid"></div>
+    <div class="catalog-load-row">
+      <div class="dots" id="catalogLoadingDots" hidden><span></span><span></span><span></span></div>
+      <button class="btn btn-soft" id="loadMoreBtn" data-i18n="loadMore">Load more</button>
+    </div>
+  </section>
+
+  <!-- ============ BATTLE VIEW ============ -->
+  <section class="battle" id="battleView" hidden>
+    <div class="battle-head">
+      <h1 data-i18n="battleTitle">⚔️ Pokémon VS Battle</h1>
+      <p data-i18n="battleSub">Pick two Pokémon and watch a stat-based battle play out.</p>
+    </div>
+
+    <div class="picker-row" id="pickerRow">
+      <div class="picker-card" id="p1Picker">
+        <span class="picker-label" id="p1Label" contenteditable="true" spellcheck="false" data-i18n="player1">Player 1</span>
+        <div class="picker-preview" id="p1Preview"><div class="picker-placeholder">?</div></div>
+        <form class="mini-search-form" id="p1SearchForm" autocomplete="off">
+          <input type="text" id="p1SearchInput" class="mini-search-input" data-i18n-placeholder="pickPokemon" placeholder="Choose a Pokémon…" />
+          <div class="suggestions" id="p1Suggestions"></div>
+        </form>
+      </div>
+
+      <div class="vs-mark">VS</div>
+
+      <div class="picker-card" id="p2Picker">
+        <span class="picker-label" id="p2Label" contenteditable="true" spellcheck="false" data-i18n="player2">Player 2</span>
+        <div class="picker-preview" id="p2Preview"><div class="picker-placeholder">?</div></div>
+        <form class="mini-search-form" id="p2SearchForm" autocomplete="off">
+          <input type="text" id="p2SearchInput" class="mini-search-input" data-i18n-placeholder="pickPokemon" placeholder="Choose a Pokémon…" />
+          <div class="suggestions" id="p2Suggestions"></div>
+        </form>
+      </div>
+    </div>
+
+    <div class="battle-actions">
+      <button class="btn btn-primary" id="fightBtn" disabled data-i18n="fight">Fight!</button>
+      <button class="btn btn-soft" id="battleResetBtn" hidden data-i18n="battleAgain">Battle Again</button>
+    </div>
+
+    <div class="arena" id="arena" hidden>
+      <!-- PLAYER 1 -->
+      <div class="fighter fighter-left" id="fighterLeft">
+        <div class="fighter-info"><span class="fighter-name" id="f1Name">—</span><span class="fighter-lvl">Lv 50</span></div>
+        <div class="hp-track"><div class="hp-fill" id="f1HpFill"></div></div>
+        <div class="hp-text" id="f1HpText">0 / 0 HP</div>
+        <div class="fighter-sprite-wrap"><img class="fighter-sprite idle-bob" id="f1Sprite" alt="" /></div>
+        
+        <!-- Tambahkan K.O. Container P1 di sini -->
+        <div class="ko-container" id="f1KoText"><div class="ko-text" data-text="K.O.">K.O.</div></div>
+      </div>
+      
+      <div class="arena-vs">⚡</div>
+      
+      <!-- PLAYER 2 -->
+      <div class="fighter fighter-right" id="fighterRight">
+        <div class="fighter-info"><span class="fighter-name" id="f2Name">—</span><span class="fighter-lvl">Lv 50</span></div>
+        <div class="hp-track"><div class="hp-fill" id="f2HpFill"></div></div>
+        <div class="hp-text" id="f2HpText">0 / 0 HP</div>
+        <div class="fighter-sprite-wrap"><img class="fighter-sprite idle-bob" id="f2Sprite" alt="" /></div>
+        
+        <!-- Tambahkan K.O. Container P2 di sini -->
+        <div class="ko-container" id="f2KoText"><div class="ko-text" data-text="K.O.">K.O.</div></div>
+      </div>
+    </div>
+
+    <div class="battle-log" id="battleLog" hidden></div>
+  </section>
+
+  <!-- ============ COMPARE VIEW ============ -->
+  <section class="compare" id="compareView" hidden>
+    <div class="compare-head">
+      <h1>🔍 <span data-i18n="compareTitle">Compare Pokémon</span></h1>
+      <p data-i18n="compareSub">Pick two Pokémon to compare their stats side by side.</p>
+    </div>
+    <div class="picker-row" id="comparePickerRow">
+      <div class="picker-card" id="cAPicker">
+        <span class="picker-label" data-i18n="pokemonA">Pokémon A</span>
+        <div class="picker-preview" id="cAPreview"><div class="picker-placeholder">?</div></div>
+        <form class="mini-search-form" id="cASearchForm" autocomplete="off">
+          <input type="text" id="cASearchInput" class="mini-search-input" data-i18n-placeholder="pickPokemon" placeholder="Choose a Pokémon…" />
+          <div class="suggestions" id="cASuggestions"></div>
+        </form>
+      </div>
+      <div class="vs-mark">VS</div>
+      <div class="picker-card" id="cBPicker">
+        <span class="picker-label" data-i18n="pokemonB">Pokémon B</span>
+        <div class="picker-preview" id="cBPreview"><div class="picker-placeholder">?</div></div>
+        <form class="mini-search-form" id="cBSearchForm" autocomplete="off">
+          <input type="text" id="cBSearchInput" class="mini-search-input" data-i18n-placeholder="pickPokemon" placeholder="Choose a Pokémon…" />
+          <div class="suggestions" id="cBSuggestions"></div>
+        </form>
+      </div>
+    </div>
+    <div class="compare-result" id="compareResult" hidden></div>
+  </section>
+
+  <!-- ============ WHO'S THAT POKÉMON VIEW ============ -->
+  <section class="guess" id="guessView" hidden>
+    <div class="guess-head">
+      <h1>🎮 <span data-i18n="guessTitle">Who's That Pokémon?</span></h1>
+      <p data-i18n="guessSub">Guess the Pokémon from its silhouette.</p>
+      <div class="guess-score" id="guessScore">0 / 0</div>
+    </div>
+    <div class="guess-stage"><img class="guess-silhouette" id="guessImg" alt="Mystery Pokémon" /></div>
+    <div class="guess-choices" id="guessChoices"></div>
+    <div class="guess-actions"><button class="btn btn-primary" id="guessNextBtn" data-i18n="nextRound">Next Silhouette →</button></div>
+  </section>
+
+  <!-- ============ DAILY QUIZ VIEW ============ -->
+  <section class="quiz" id="quizView" hidden>
+    <div class="quiz-head">
+      <h1>📅 <span data-i18n="quizTitle">Daily Quiz</span></h1>
+      <p id="quizDate" class="quiz-date"></p>
+    </div>
+    <div id="quizBody"></div>
+  </section>
+
+  <!-- ============ ACHIEVEMENTS VIEW ============ -->
+  <section class="achievements" id="achievementsView" hidden>
+    <div class="achievements-head">
+      <h1>🏆 <span data-i18n="achievementsTitle">Achievements</span></h1>
+      <p data-i18n="achievementsSub">Track your Pokédex completion and unlock badges.</p>
+    </div>
+    <div class="dex-progress">
+      <div class="dex-progress-track"><div class="dex-progress-fill" id="dexProgressFill"></div></div>
+      <div class="dex-progress-text" id="dexProgressText">0 / 0</div>
+    </div>
+    <div class="badge-grid" id="badgeGrid"></div>
+  </section>
+
+  <!-- ============ RAILS ============ -->
+  <section class="rails" id="railsSection">
+    <div class="rail" id="trendingRail">
+      <h2 class="rail-title" data-i18n="trending">✨ Trending Pokémon</h2>
+      <div class="rail-track" id="trendingTrack"></div>
+    </div>
+    <div class="rail" id="recentRail">
+      <h2 class="rail-title" data-i18n="recent">🕑 Recently Viewed</h2>
+      <div class="rail-track" id="recentTrack"><p class="rail-empty" data-i18n="recentEmpty">Pokémon you view will show up here.</p></div>
+    </div>
+    <div class="rail" id="favRail">
+      <h2 class="rail-title" data-i18n="favorites">❤️ Favorites</h2>
+      <div class="rail-track" id="favTrack"><p class="rail-empty" data-i18n="favEmpty">Tap the heart on any Pokémon to save it here.</p></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="footer-content">
+    <p class="footer-title">Pokédex Project</p>
+    <p class="footer-disclaimer" data-i18n-html="footerDisclaimer">
+      This is a non-profit educational portfolio project.<br>
+      Pokémon and Pokémon character names are trademarks of Nintendo.<br>
+      Data and images belong to Nintendo, Game Freak, and The Pokémon Company.
+    </p>
+    <p class="footer-credits">
+      Built with 💛 using <a href="https://pokeapi.co/" target="_blank">PokéAPI</a>
+    </p>
+  </div>
+</footer>
+
+<!-- ============ TYPE MODAL ============ -->
+<div class="modal-overlay" id="typeModalOverlay" hidden>
+  <div class="modal-panel">
+    <button class="modal-close" id="typeModalClose">✕</button>
+    <div class="modal-header" id="typeModalHeader"></div>
+    <div class="modal-body" id="typeModalBody"></div>
+  </div>
+</div>
+
+<!-- ============ VICTORY MODAL ============ -->
+<div class="modal-overlay" id="victoryModal" hidden>
+  <div class="modal-panel victory-panel">
+    <div class="victory-icon"><img id="victorySprite" src="" alt="Winner" /></div>
+    <h2 id="victoryMessage">Player 1 Menang!</h2>
+    <button class="btn btn-primary" id="victoryCloseBtn">OK</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<canvas id="exportCanvas" width="720" height="960" style="display:none"></canvas>
+
+<script src="script.js"></script>
+</body>
+</html>
