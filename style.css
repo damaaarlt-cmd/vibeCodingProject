@@ -1016,3 +1016,33 @@ body.dark .badge-progress-track{ background: rgba(255,255,255,.08); }
   .quiz-choices{ grid-template-columns: 1fr 1fr; }
   .more-dropdown{ right:-40px; }
 }
+
+/* =========================================
+   📱 MOBILE RESPONSIVE FIXES (Tampilan HP)
+   ========================================= */
+@media screen and (max-width: 768px) {
+  
+  /* 1. Mencegah Menu Dropdown terpotong di kanan layar */
+  /* Catatan: Ganti ".dropdown-menu" dengan nama class menu-mu jika berbeda (misal: .more-menu / .nav-menu) */
+  .dropdown-menu, 
+  #moreMenu {
+    right: 10px !important;    /* Kunci posisi di kanan agar tidak keluar layar */
+    left: auto !important;     /* Matikan posisi kiri agar tidak bentrok */
+    transform: none !important; /* Hapus efek geser dari tengah jika ada */
+    width: max-content;
+    max-width: 90vw;           /* Jangan sampai lebih lebar dari layar HP */
+  }
+
+  /* 2. Merapikan jarak tombol-tombol di Header agar tidak terlalu rapat */
+  .header-controls, 
+  .top-buttons {
+    gap: 8px !important;
+  }
+
+  /* 3. Mengecilkan sedikit ukuran font dan tombol utama agar lebih pas di HP */
+  .hero-buttons button,
+  .action-btn {
+    font-size: 0.85rem !important;
+    padding: 10px 16px !important;
+  }
+}
