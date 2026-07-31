@@ -1,0 +1,1941 @@
+/* ======================================================
+   POKÉDEX — App logic (Vanilla JS, PokéAPI)
+   ====================================================== */
+
+const API = 'https://pokeapi.co/api/v2';
+
+const ALL_TYPES = ['normal','fire','water','electric','grass','ice','fighting','poison','ground','flying','psychic','bug','rock','ghost','dragon','dark','steel','fairy'];
+
+const TYPE_EMOJI = {
+  normal:'⭐', fire:'🔥', water:'💧', electric:'⚡', grass:'🌿', ice:'❄️',
+  fighting:'🥊', poison:'☠️', ground:'🌍', flying:'🪽', psychic:'🔮', bug:'🐛',
+  rock:'🪨', ghost:'👻', dragon:'🐉', dark:'🌙', steel:'⚙️', fairy:'✨'
+};
+
+const TRENDING_IDS = [25, 6, 9, 3, 150, 143, 94, 130, 448, 445, 282, 384, 133, 700, 658, 39];
+
+/* ---------------- I18N ---------------- */
+const I18N = {
+  en: {
+    searchPlaceholder:"Search Pikachu, #025, fire...",
+    searchBtn:"Search",
+    navCatalog:"Catalog", navBattle:"Battle", navFav:"Favorites", navSound:"Toggle sound", navDark:"Toggle dark mode",
+    heroTitle:"Meet every Pokémon,<br>up close.",
+    heroSub:"Search a name or Pokédex number and explore stats, types, evolutions and more.",
+    randomBtn:"🎲 Random Pokémon",
+    catalogBtn:"📖 Browse Catalog",
+    battleBtnHome:"⚔️ VS Battle",
+    clearHistory:"🕑 Clear history",
+    trending:"✨ Trending Pokémon",
+    recent:"🕑 Recently Viewed",
+    favorites:"❤️ Favorites",
+    recentEmpty:"Pokémon you view will show up here.",
+    favEmpty:"Tap the heart on any Pokémon to save it here.",
+    loadingText:"Fetching data from the Pokédex…",
+    errorTitle:"Wild error appeared!",
+    errorMessage:(q)=>`We looked everywhere but "${q}" doesn't seem to exist. Double-check the spelling or Pokédex number!`,
+    retry:"Try Again",
+    prev:"← Previous", next:"Next →", random:"🎲 Random",
+    abilities:"💪 Abilities", baseStats:"📊 Base Stats", typeMatchups:"🛡️ Type Matchups",
+    weakAgainst:"Weak against (2×/4×)", resists:"Resists (½×/¼×)", immuneTo:"Immune to",
+    evolutionChain:"🌱 Evolution Chain", notableMoves:"🥊 Notable Moves",
+    unavailable:"Unavailable", none:"None",
+    height:"Height", weight:"Weight", baseXp:"Base XP", habitat:"Habitat", shape:"Shape",
+    color:"Color", generation:"Generation", speciesNum:"Species #", unknown:"Unknown",
+    catalogTitle:"📖 Pokémon Catalog", catalogSub:"Browse every Pokémon — perfect if you can't remember a name.",
+    loadMore:"Load more", allTypes:"All",
+    battleTitle:"⚔️ Pokémon VS Battle", battleSub:"Pick two Pokémon and watch a stat-based battle play out.",
+    player1:"Player 1", player2:"Player 2", pickPokemon:"Choose a Pokémon…",
+    fight:"Fight!", battleAgain:"Battle Again",
+    footer:"Built with 💛 using PokéAPI · Data belongs to Nintendo / Game Freak / The Pokémon Company",
+    footerDisclaimer: "This is a non-profit educational portfolio project.<br>Pokémon and Pokémon character names are trademarks of Nintendo.<br>Data and images belong to Nintendo, Game Freak, and The Pokémon Company.",
+    typeModalNote:(n,total)=> total>n? `Showing ${n} of ${total} Pokémon`:`${total} Pokémon`,
+    favAdded:(n)=>`${n} added to favorites ❤️`, favRemoved:(n)=>`${n} removed from favorites`,
+    soundOn:"Sound on 🔊", soundMuted:"Sound muted 🔇",
+    historyCleared:"Recently viewed cleared",
+    noCry:"No cry available for this Pokémon",
+    pickBothPlayers:"Pick a Pokémon for both players first!",
+    battleStartLog:(a,b)=>`${a} and ${b} enter the battle!`,
+    attackLog:(atkName,dmg,eff)=> `${atkName} attacks — ${dmg} damage!${eff}`,
+    superEffective:" It's super effective!",
+    notVeryEffective:" It's not very effective...",
+    noEffect:" It has no effect...",
+    faintedLog:(name)=>`${name} fainted!`,
+    winnerLog:(name)=>`🏆 ${name} wins the battle!`,
+    drawLog:()=> `🤝 It's a draw on remaining HP!`,
+    notFoundToast:(q)=>`"${q}" not found`,
+    catalogLoadFail:"Could not load the catalog. Try again.",
+
+    moreMenu:"More",
+    compareTitle:"Compare Pokémon", compareBtnHome:"🔍 Compare", compareSub:"Pick two Pokémon to compare their stats side by side.",
+    pokemonA:"Pokémon A", pokemonB:"Pokémon B",
+    cmpWinnerText:(name)=>`🏆 ${name} has the higher total base stats!`,
+    cmpTie:"🤝 It's a tie on total base stats!",
+
+    guessTitle:"Who's That Pokémon?", guessBtnHome:"🎮 Guess Game", guessSub:"Guess the Pokémon from its silhouette.",
+    nextRound:"Next Silhouette →",
+    guessCorrect:"🎉 Correct! It's ",
+    guessWrong:(name)=>`❌ Nope! It was ${name}.`,
+
+    quizTitle:"Daily Quiz", quizBtnHome:"📅 Daily Quiz",
+    quizQuestion:"Who's that Pokémon?",
+    quizAlreadyPlayed:"You already played today's quiz — come back tomorrow!",
+    quizYourAnswerCorrect:(name)=>`✅ Correct! It was ${name}.`,
+    quizYourAnswerWrong:(name)=>`❌ Not quite — it was ${name}.`,
+    quizScoreLine:(correct,total)=>`Quiz score: ${correct} / ${total} correct all-time`,
+
+    achievementsTitle:"Achievements", achievementsBtnHome:"🏆 Achievements", achievementsSub:"Track your Pokédex completion and unlock badges.",
+    dexProgressLabel:(n,total)=>`${n} / ${total} Pokémon viewed`,
+    achievementUnlocked:(name)=>`🏆 Achievement unlocked: ${name}`,
+
+    ach_first_steps_name:"First Steps", ach_first_steps_desc:"View your first Pokémon.",
+    ach_explorer_name:"Explorer", ach_explorer_desc:"View 50 different Pokémon.",
+    ach_century_name:"Century Club", ach_century_desc:"View 100 different Pokémon.",
+    ach_full_dex_name:"Full Pokédex", ach_full_dex_desc:"View every single Pokémon in the Pokédex.",
+    ach_type_collector_name:"Type Collector", ach_type_collector_desc:"See a Pokémon of all 18 types.",
+    ach_legend_hunter_name:"Legend Hunter", ach_legend_hunter_desc:"View 5 legendary or mythical Pokémon.",
+    ach_heart_collector_name:"Heart Collector", ach_heart_collector_desc:"Add 10 Pokémon to your favorites.",
+    ach_battle_champion_name:"Battle Champion", ach_battle_champion_desc:"Win 5 VS battles.",
+    ach_quiz_master_name:"Quiz Master", ach_quiz_master_desc:"Answer 10 daily quiz questions correctly.",
+    ach_guess_pro_name:"Silhouette Sleuth", ach_guess_pro_desc:"Correctly guess 10 silhouettes.",
+
+    exportPng:"Export PNG", shareCard:"Share",
+    generatingCard:"Generating your card…", cardDownloaded:"Card downloaded! 📥",
+    cardExportFail:"Couldn't generate the card — try again.",
+    shareFallback:"Sharing isn't supported here — downloaded the PNG instead.",
+    shareText:(name)=>`Check out ${name} on my Pokédex app!`,
+  },
+  id: {
+    searchPlaceholder:"Cari Pikachu, #025, fire...",
+    searchBtn:"Cari",
+    navCatalog:"Katalog", navBattle:"Battle", navFav:"Favorit", navSound:"Aktif/matikan suara", navDark:"Mode gelap",
+    heroTitle:"Kenali setiap Pokémon,<br>lebih dekat.",
+    heroSub:"Cari nama atau nomor Pokédex dan jelajahi statistik, tipe, evolusi, dan lainnya.",
+    randomBtn:"🎲 Pokémon Acak",
+    catalogBtn:"📖 Lihat Katalog",
+    battleBtnHome:"⚔️ Battle VS",
+    clearHistory:"🕑 Hapus riwayat",
+    trending:"✨ Pokémon Populer",
+    recent:"🕑 Baru Dilihat",
+    favorites:"❤️ Favorit",
+    recentEmpty:"Pokémon yang kamu lihat akan muncul di sini.",
+    favEmpty:"Ketuk ikon hati pada Pokémon mana pun untuk menyimpannya di sini.",
+    loadingText:"Mengambil data dari Pokédex…",
+    errorTitle:"Muncul error liar!",
+    errorMessage:(q)=>`Sudah dicari ke mana-mana tapi "${q}" sepertinya tidak ada. Periksa lagi ejaan atau nomor Pokédex-nya!`,
+    retry:"Coba Lagi",
+    prev:"← Sebelumnya", next:"Selanjutnya →", random:"🎲 Acak",
+    abilities:"💪 Kemampuan", baseStats:"📊 Statistik Dasar", typeMatchups:"🛡️ Kelemahan & Ketahanan",
+    weakAgainst:"Lemah terhadap (2×/4×)", resists:"Tahan terhadap (½×/¼×)", immuneTo:"Kebal terhadap",
+    evolutionChain:"🌱 Rantai Evolusi", notableMoves:"🥊 Gerakan Andalan",
+    unavailable:"Tidak tersedia", none:"Tidak ada",
+    height:"Tinggi", weight:"Berat", baseXp:"XP Dasar", habitat:"Habitat", shape:"Bentuk",
+    color:"Warna", generation:"Generasi", speciesNum:"No. Spesies", unknown:"Tidak diketahui",
+    catalogTitle:"📖 Katalog Pokémon", catalogSub:"Jelajahi semua Pokémon — cocok kalau kamu lupa namanya.",
+    loadMore:"Muat lagi", allTypes:"Semua",
+    battleTitle:"⚔️ Battle VS Pokémon", battleSub:"Pilih dua Pokémon lalu lihat pertarungan berbasis statistik berlangsung.",
+    player1:"Pemain 1", player2:"Pemain 2", pickPokemon:"Pilih Pokémon…",
+    fight:"Bertarung!", battleAgain:"Battle Lagi",
+    footer:"Dibuat dengan 💛 memakai PokéAPI · Data milik Nintendo / Game Freak / The Pokémon Company",
+    footerDisclaimer: "Ini adalah proyek portofolio edukasional non-profit.<br>Pokémon dan nama karakter Pokémon adalah merek dagang dari Nintendo.<br>Data dan aset adalah milik Nintendo, Game Freak, dan The Pokémon Company.",
+    typeModalNote:(n,total)=> total>n? `Menampilkan ${n} dari ${total} Pokémon`:`${total} Pokémon`,
+    favAdded:(n)=>`${n} ditambahkan ke favorit ❤️`, favRemoved:(n)=>`${n} dihapus dari favorit`,
+    soundOn:"Suara aktif 🔊", soundMuted:"Suara dimatikan 🔇",
+    historyCleared:"Riwayat pencarian dihapus",
+    noCry:"Suara Pokémon ini tidak tersedia",
+    pickBothPlayers:"Pilih Pokémon untuk kedua pemain dahulu!",
+    battleStartLog:(a,b)=>`${a} dan ${b} memasuki pertarungan!`,
+    attackLog:(atkName,dmg,eff)=> `${atkName} menyerang — ${dmg} damage!${eff}`,
+    superEffective:" Sangat efektif!",
+    notVeryEffective:" Kurang efektif...",
+    noEffect:" Tidak berpengaruh...",
+    faintedLog:(name)=>`${name} pingsan!`,
+    winnerLog:(name)=>`🏆 ${name} memenangkan pertarungan!`,
+    drawLog:()=> `🤝 Seri berdasarkan sisa HP!`,
+    notFoundToast:(q)=>`"${q}" tidak ditemukan`,
+    catalogLoadFail:"Katalog gagal dimuat. Coba lagi.",
+
+    moreMenu:"Lainnya",
+    compareTitle:"Bandingkan Pokémon", compareBtnHome:"🔍 Bandingkan", compareSub:"Pilih dua Pokémon untuk membandingkan statistiknya berdampingan.",
+    pokemonA:"Pokémon A", pokemonB:"Pokémon B",
+    cmpWinnerText:(name)=>`🏆 ${name} punya total statistik dasar lebih tinggi!`,
+    cmpTie:"🤝 Seri dalam total statistik dasar!",
+
+    guessTitle:"Siapakah Pokémon Ini?", guessBtnHome:"🎮 Tebak Pokémon", guessSub:"Tebak Pokémon dari siluetnya.",
+    nextRound:"Siluet Berikutnya →",
+    guessCorrect:"🎉 Benar! Itu adalah ",
+    guessWrong:(name)=>`❌ Salah! Itu adalah ${name}.`,
+
+    quizTitle:"Kuis Harian", quizBtnHome:"📅 Kuis Harian",
+    quizQuestion:"Siapakah Pokémon ini?",
+    quizAlreadyPlayed:"Kamu sudah main kuis hari ini — datang lagi besok!",
+    quizYourAnswerCorrect:(name)=>`✅ Benar! Itu adalah ${name}.`,
+    quizYourAnswerWrong:(name)=>`❌ Kurang tepat — itu adalah ${name}.`,
+    quizScoreLine:(correct,total)=>`Skor kuis: ${correct} / ${total} benar sepanjang waktu`,
+
+    achievementsTitle:"Pencapaian", achievementsBtnHome:"🏆 Pencapaian", achievementsSub:"Pantau progres Pokédex-mu dan buka lencana baru.",
+    dexProgressLabel:(n,total)=>`${n} / ${total} Pokémon telah dilihat`,
+    achievementUnlocked:(name)=>`🏆 Pencapaian terbuka: ${name}`,
+
+    ach_first_steps_name:"Langkah Pertama", ach_first_steps_desc:"Lihat Pokémon pertamamu.",
+    ach_explorer_name:"Penjelajah", ach_explorer_desc:"Lihat 50 Pokémon berbeda.",
+    ach_century_name:"Klub Seratus", ach_century_desc:"Lihat 100 Pokémon berbeda.",
+    ach_full_dex_name:"Pokédex Lengkap", ach_full_dex_desc:"Lihat semua Pokémon di Pokédex.",
+    ach_type_collector_name:"Kolektor Tipe", ach_type_collector_desc:"Lihat Pokémon dari ke-18 tipe.",
+    ach_legend_hunter_name:"Pemburu Legenda", ach_legend_hunter_desc:"Lihat 5 Pokémon legendaris atau mitos.",
+    ach_heart_collector_name:"Kolektor Hati", ach_heart_collector_desc:"Tambahkan 10 Pokémon ke favorit.",
+    ach_battle_champion_name:"Juara Battle", ach_battle_champion_desc:"Menangkan 5 battle VS.",
+    ach_quiz_master_name:"Master Kuis", ach_quiz_master_desc:"Jawab 10 pertanyaan kuis harian dengan benar.",
+    ach_guess_pro_name:"Detektif Siluet", ach_guess_pro_desc:"Tebak 10 siluet dengan benar.",
+
+    exportPng:"Ekspor PNG", shareCard:"Bagikan",
+    generatingCard:"Membuat kartu…", cardDownloaded:"Kartu berhasil diunduh! 📥",
+    cardExportFail:"Gagal membuat kartu — coba lagi.",
+    shareFallback:"Berbagi tidak didukung di sini — PNG diunduh sebagai gantinya.",
+    shareText:(name)=>`Lihat ${name} di aplikasi Pokédex-ku!`,
+  }
+};
+
+function t(key, ...args){
+  const dict = I18N[state.lang] || I18N.en;
+  const val = (key in dict) ? dict[key] : I18N.en[key];
+  return typeof val === 'function' ? val(...args) : val;
+}
+
+/* ---------------- DOM ---------------- */
+const els = {
+  brandHome: document.getElementById('brandHome'),
+  favoritesNavBtn: document.getElementById('favoritesNavBtn'),
+  favCount: document.getElementById('favCount'),
+  soundToggle: document.getElementById('soundToggle'),
+  soundIcon: document.getElementById('soundIcon'),
+  darkToggle: document.getElementById('darkToggle'),
+  darkIcon: document.getElementById('darkIcon'),
+  langToggle: document.getElementById('langToggle'),
+  langLabel: document.getElementById('langLabel'),
+  catalogNavBtn: document.getElementById('catalogNavBtn'),
+  battleNavBtn: document.getElementById('battleNavBtn'),
+
+  topSearchForm: document.getElementById('topSearchForm'),
+  topSearchInput: document.getElementById('topSearchInput'),
+  topSearchBox: document.getElementById('topSearchBox'),
+  topClearSearch: document.getElementById('topClearSearch'),
+  topSuggestions: document.getElementById('topSuggestions'),
+
+  heroSection: document.getElementById('heroSection'),
+  searchForm: document.getElementById('searchForm'),
+  searchInput: document.getElementById('searchInput'),
+  heroSearchBox: document.getElementById('heroSearchBox'),
+  clearSearch: document.getElementById('clearSearch'),
+  suggestions: document.getElementById('suggestions'),
+  randomBtn: document.getElementById('randomBtn'),
+  randomBtn2: document.getElementById('randomBtn2'),
+  catalogBtn: document.getElementById('catalogBtn'),
+  battleBtn: document.getElementById('battleBtn'),
+  clearHistoryBtn: document.getElementById('clearHistoryBtn'),
+
+  railsSection: document.getElementById('railsSection'),
+  trendingTrack: document.getElementById('trendingTrack'),
+  recentTrack: document.getElementById('recentTrack'),
+  favTrack: document.getElementById('favTrack'),
+
+  loadingPanel: document.getElementById('loadingPanel'),
+  errorPanel: document.getElementById('errorPanel'),
+  errorMessage: document.getElementById('errorMessage'),
+  retryBtn: document.getElementById('retryBtn'),
+
+  detailView: document.getElementById('detailView'),
+  detailCard: document.getElementById('detailCard'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+
+  catalogView: document.getElementById('catalogView'),
+  catalogGrid: document.getElementById('catalogGrid'),
+  catalogFilters: document.getElementById('catalogFilters'),
+  loadMoreBtn: document.getElementById('loadMoreBtn'),
+  catalogLoadingDots: document.getElementById('catalogLoadingDots'),
+
+  battleView: document.getElementById('battleView'),
+  p1SearchForm: document.getElementById('p1SearchForm'),
+  p1SearchInput: document.getElementById('p1SearchInput'),
+  p1Suggestions: document.getElementById('p1Suggestions'),
+  p1Preview: document.getElementById('p1Preview'),
+  p2SearchForm: document.getElementById('p2SearchForm'),
+  p2SearchInput: document.getElementById('p2SearchInput'),
+  p2Suggestions: document.getElementById('p2Suggestions'),
+  p2Preview: document.getElementById('p2Preview'),
+  fightBtn: document.getElementById('fightBtn'),
+  battleResetBtn: document.getElementById('battleResetBtn'),
+  arena: document.getElementById('arena'),
+  fighterLeft: document.getElementById('fighterLeft'),
+  fighterRight: document.getElementById('fighterRight'),
+  f1Name: document.getElementById('f1Name'),
+  f2Name: document.getElementById('f2Name'),
+  f1Sprite: document.getElementById('f1Sprite'),
+  f2Sprite: document.getElementById('f2Sprite'),
+  f1HpFill: document.getElementById('f1HpFill'),
+  f2HpFill: document.getElementById('f2HpFill'),
+  f1HpText: document.getElementById('f1HpText'),
+  f2HpText: document.getElementById('f2HpText'),
+  battleLog: document.getElementById('battleLog'),
+
+  typeModalOverlay: document.getElementById('typeModalOverlay'),
+  typeModalHeader: document.getElementById('typeModalHeader'),
+  typeModalBody: document.getElementById('typeModalBody'),
+  typeModalClose: document.getElementById('typeModalClose'),
+
+  moreNavBtn: document.getElementById('moreNavBtn'),
+  moreDropdown: document.getElementById('moreDropdown'),
+  compareNavBtn: document.getElementById('compareNavBtn'),
+  guessNavBtn: document.getElementById('guessNavBtn'),
+  quizNavBtn: document.getElementById('quizNavBtn'),
+  achievementsNavBtn: document.getElementById('achievementsNavBtn'),
+  compareBtn: document.getElementById('compareBtn'),
+  guessBtn: document.getElementById('guessBtn'),
+  quizBtn: document.getElementById('quizBtn'),
+  achievementsBtn: document.getElementById('achievementsBtn'),
+
+  compareView: document.getElementById('compareView'),
+  cASearchForm: document.getElementById('cASearchForm'),
+  cASearchInput: document.getElementById('cASearchInput'),
+  cASuggestions: document.getElementById('cASuggestions'),
+  cAPreview: document.getElementById('cAPreview'),
+  cBSearchForm: document.getElementById('cBSearchForm'),
+  cBSearchInput: document.getElementById('cBSearchInput'),
+  cBSuggestions: document.getElementById('cBSuggestions'),
+  cBPreview: document.getElementById('cBPreview'),
+  compareResult: document.getElementById('compareResult'),
+
+  guessView: document.getElementById('guessView'),
+  guessImg: document.getElementById('guessImg'),
+  guessChoices: document.getElementById('guessChoices'),
+  guessScore: document.getElementById('guessScore'),
+  guessNextBtn: document.getElementById('guessNextBtn'),
+
+  quizView: document.getElementById('quizView'),
+  quizDate: document.getElementById('quizDate'),
+  quizBody: document.getElementById('quizBody'),
+
+  achievementsView: document.getElementById('achievementsView'),
+  dexProgressFill: document.getElementById('dexProgressFill'),
+  dexProgressText: document.getElementById('dexProgressText'),
+  badgeGrid: document.getElementById('badgeGrid'),
+
+  exportCanvas: document.getElementById('exportCanvas'),
+
+  bgLayer: document.getElementById('bgLayer'),
+  sparkles: document.getElementById('sparkles'),
+  floatingBalls: document.getElementById('floatingBalls'),
+  toast: document.getElementById('toast'),
+};
+
+/* ---------------- STATE ---------------- */
+const state = {
+  allNames: [],
+  namesLoaded: false,
+  favorites: JSON.parse(localStorage.getItem('pokedex_favorites') || '[]'),
+  recent: JSON.parse(localStorage.getItem('pokedex_recent') || '[]'),
+  darkMode: localStorage.getItem('pokedex_dark') === '1',
+  soundOn: localStorage.getItem('pokedex_sound') !== '0',
+  lang: localStorage.getItem('pokedex_lang') || 'en',
+  currentId: null,
+  lastRetry: null,
+  currentView: 'home',
+  catalog: { offset: 0, limit: 40, filterType: null, typeListCache: {}, endReached: false },
+  battle: { p1: null, p2: null },
+  compare: { a: null, b: null },
+  guess: { pokemonId: null, correctName: null, answered: false },
+  progress: JSON.parse(localStorage.getItem('pokedex_progress') || 'null') || {
+    viewedIds: [], typesSeen: [], legendaryViewed: [],
+    favoritesAdded: 0, battlesPlayed: 0, battlesWon: 0,
+    quizCorrect: 0, quizTotal: 0, guessCorrect: 0, guessTotal: 0,
+  },
+  unlockedAchievements: JSON.parse(localStorage.getItem('pokedex_unlocked_achievements') || '[]'),
+};
+
+/* ---------------- INIT ---------------- */
+init();
+
+function init(){
+  applyDarkMode(state.darkMode);
+  applySoundIcon();
+  applyLanguage();
+  spawnFloatingBalls();
+  spawnSparkles();
+  renderTrending();
+  renderRecent();
+  renderFavorites();
+  renderCatalogFilters();
+  loadNameIndex();
+  bindEvents();
+  attachAutocomplete(els.searchInput, els.suggestions, els.searchForm, (name)=> doSearch(name));
+  attachAutocomplete(els.topSearchInput, els.topSuggestions, els.topSearchForm, (name)=> doSearch(name));
+  attachAutocomplete(els.p1SearchInput, els.p1Suggestions, els.p1SearchForm, (name)=> selectBattlePokemon('p1', name));
+  attachAutocomplete(els.p2SearchInput, els.p2Suggestions, els.p2SearchForm, (name)=> selectBattlePokemon('p2', name));
+  attachAutocomplete(els.cASearchInput, els.cASuggestions, els.cASearchForm, (name)=> selectComparePokemon('a', name));
+  attachAutocomplete(els.cBSearchInput, els.cBSuggestions, els.cBSearchForm, (name)=> selectComparePokemon('b', name));
+  handleRouteFromHash();
+}
+
+function bindEvents(){
+  els.darkToggle.addEventListener('click', () => {
+    state.darkMode = !state.darkMode;
+    localStorage.setItem('pokedex_dark', state.darkMode ? '1':'0');
+    applyDarkMode(state.darkMode);
+  });
+
+  els.soundToggle.addEventListener('click', () => {
+    state.soundOn = !state.soundOn;
+    localStorage.setItem('pokedex_sound', state.soundOn ? '1':'0');
+    applySoundIcon();
+    showToast(state.soundOn ? t('soundOn') : t('soundMuted'));
+  });
+
+  els.langToggle.addEventListener('click', () => {
+    state.lang = state.lang === 'en' ? 'id' : 'en';
+    localStorage.setItem('pokedex_lang', state.lang);
+    applyLanguage();
+    renderRecent();
+    renderFavorites();
+    renderCatalogFilters();
+    if(state.currentId && state.currentView === 'detail'){
+      loadPokemon(state.currentId, true);
+    }
+    if(state.currentView === 'compare' && state.compare.a && state.compare.b) renderCompare();
+    if(state.currentView === 'guess') updateGuessScore();
+    if(state.currentView === 'quiz') renderQuiz();
+    if(state.currentView === 'achievements') renderAchievements();
+  });
+
+  els.brandHome.addEventListener('click', (e)=>{ e.preventDefault(); goHome(); });
+  els.catalogNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openCatalog(); });
+  els.catalogBtn.addEventListener('click', openCatalog);
+  els.battleNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openBattle(); });
+  els.battleBtn.addEventListener('click', openBattle);
+
+  els.moreNavBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    els.moreDropdown.hidden = !els.moreDropdown.hidden;
+  });
+  document.addEventListener('click', (e)=>{
+    if(!els.moreDropdown.hidden && !e.target.closest('.more-menu-wrap')) els.moreDropdown.hidden = true;
+  });
+  els.compareNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openCompare(); });
+  els.guessNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openGuess(); });
+  els.quizNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openQuiz(); });
+  els.achievementsNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openAchievements(); });
+  els.compareBtn.addEventListener('click', openCompare);
+  els.guessBtn.addEventListener('click', openGuess);
+  els.quizBtn.addEventListener('click', openQuiz);
+  els.achievementsBtn.addEventListener('click', openAchievements);
+  els.guessNextBtn.addEventListener('click', loadGuessRound);
+
+  els.favoritesNavBtn.addEventListener('click', ()=>{
+    els.moreDropdown.hidden = true; 
+    goHome();
+    setTimeout(()=> document.getElementById('favRail').scrollIntoView({behavior:'smooth', block:'start'}), 60);
+  });
+
+  els.searchForm.addEventListener('submit', (e)=>{ e.preventDefault(); playClick(); doSearch(els.searchInput.value); });
+  els.topSearchForm.addEventListener('submit', (e)=>{ e.preventDefault(); playClick(); doSearch(els.topSearchInput.value); });
+
+  els.searchInput.addEventListener('input', ()=> els.heroSearchBox.classList.toggle('has-text', !!els.searchInput.value));
+  els.topSearchInput.addEventListener('input', ()=> els.topSearchBox.classList.toggle('has-text', !!els.topSearchInput.value));
+
+  els.clearSearch.addEventListener('click', ()=>{ els.searchInput.value=''; els.heroSearchBox.classList.remove('has-text'); els.searchInput.focus(); });
+  els.topClearSearch.addEventListener('click', ()=>{ els.topSearchInput.value=''; els.topSearchBox.classList.remove('has-text'); els.topSearchInput.focus(); });
+
+  els.randomBtn.addEventListener('click', ()=>{ playThrow(); loadRandom(); });
+  els.randomBtn2.addEventListener('click', ()=>{ playThrow(); loadRandom(); });
+
+  els.clearHistoryBtn.addEventListener('click', ()=>{
+    state.recent = [];
+    localStorage.setItem('pokedex_recent', '[]');
+    renderRecent();
+    showToast(t('historyCleared'));
+  });
+
+  els.retryBtn.addEventListener('click', ()=>{ if(state.lastRetry) loadPokemon(state.lastRetry); });
+
+  els.prevBtn.addEventListener('click', ()=>{ if(state.currentId > 1) loadPokemon(state.currentId - 1); });
+  els.nextBtn.addEventListener('click', ()=>{ if(state.currentId) loadPokemon(state.currentId + 1); });
+
+  els.loadMoreBtn.addEventListener('click', ()=> loadCatalogBatch(false));
+
+  els.fightBtn.addEventListener('click', runBattle);
+  els.battleResetBtn.addEventListener('click', resetBattle);
+
+  els.typeModalClose.addEventListener('click', closeTypeModal);
+  els.typeModalOverlay.addEventListener('click', (e)=>{ if(e.target === els.typeModalOverlay) closeTypeModal(); });
+
+  document.addEventListener('click', (e)=>{
+    const badge = e.target.closest('.type-badge[data-type]');
+    if(badge) openTypeModal(badge.dataset.type);
+  });
+
+  window.addEventListener('hashchange', handleRouteFromHash);
+}
+
+/* ---------------- LANGUAGE ---------------- */
+function applyLanguage(){
+  document.documentElement.lang = state.lang;
+  els.langLabel.textContent = state.lang.toUpperCase();
+  document.querySelectorAll('[data-i18n]').forEach(el=> el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll('[data-i18n-html]').forEach(el=> el.innerHTML = t(el.dataset.i18nHtml));
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=> el.placeholder = t(el.dataset.i18nPlaceholder));
+  document.querySelectorAll('[data-i18n-title]').forEach(el=> el.title = t(el.dataset.i18nTitle));
+}
+
+/* ---------------- DECOR ---------------- */
+function spawnFloatingBalls(){
+  const count = window.innerWidth < 600 ? 5 : 9;
+  for(let i=0;i<count;i++){
+    const b = document.createElement('div');
+    b.className = 'fball';
+    b.style.left = (Math.random()*100)+'vw';
+    b.style.width = b.style.height = (22 + Math.random()*26)+'px';
+    b.style.animationDuration = (10 + Math.random()*14)+'s';
+    b.style.animationDelay = (-Math.random()*14)+'s';
+    els.floatingBalls.appendChild(b);
+  }
+}
+function spawnSparkles(){
+  const count = window.innerWidth < 600 ? 12 : 22;
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.style.left = (Math.random()*100)+'vw';
+    s.style.top = (Math.random()*100)+'vh';
+    s.style.animationDelay = (-Math.random()*2.6)+'s';
+    s.style.animationDuration = (1.8 + Math.random()*2)+'s';
+    els.sparkles.appendChild(s);
+  }
+}
+
+/* ---------------- DARK MODE / SOUND ---------------- */
+function applyDarkMode(on){ document.body.classList.toggle('dark', on); }
+function applySoundIcon(){ els.soundIcon.style.opacity = state.soundOn ? '1' : '.35'; }
+function playClick(){ if(state.soundOn) beep(880, 0.04, 0.03); }
+function playThrow(){ if(state.soundOn) beep(300, 0.15, 0.05, 620); }
+let audioCtx;
+function beep(freq, dur, vol, sweepTo){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    if(sweepTo) o.frequency.linearRampToValueAtTime(sweepTo, audioCtx.currentTime + dur);
+    g.gain.setValueAtTime(vol, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  }catch(e){ /* audio not available */ }
+}
+
+/* ---------------- TOAST ---------------- */
+let toastTimer;
+function showToast(msg){
+  els.toast.textContent = msg;
+  els.toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> els.toast.classList.remove('show'), 2200);
+}
+
+/* ---------------- NAME INDEX ---------------- */
+async function loadNameIndex(){
+  try{
+    const res = await fetch(`${API}/pokemon?limit=2000`);
+    const data = await res.json();
+    state.allNames = data.results.map(p=>{
+      const id = idFromUrl(p.url);
+      return { name: p.name, id };
+    });
+    state.namesLoaded = true;
+  }catch(e){
+    console.warn('Could not load name index for autocomplete', e);
+  }
+}
+
+/* ---------------- REUSABLE AUTOCOMPLETE ---------------- */
+function attachAutocomplete(inputEl, suggEl, formEl, onSelect){
+  if(!inputEl || !suggEl) return;
+  let timer, activeIndex = -1;
+
+  function debounce(){ clearTimeout(timer); timer = setTimeout(render, 160); }
+
+  function render(){
+    const q = inputEl.value.trim().toLowerCase();
+    activeIndex = -1;
+    if(!q){ close(); return; }
+    let matches = [];
+    if(/^#?\d+$/.test(q)){
+      const num = q.replace('#','');
+      matches = state.allNames.filter(p => String(p.id) === num).slice(0,8);
+    } else {
+      matches = state.allNames.filter(p => p.name.includes(q))
+        .sort((a,b)=> a.name.indexOf(q) - b.name.indexOf(q) || a.name.length - b.name.length)
+        .slice(0,8);
+    }
+    if(matches.length === 0){
+      suggEl.innerHTML = `<div class="sugg-item" style="opacity:.6">${q.length>0 ? '…' : ''}</div>`;
+      suggEl.classList.add('open');
+      return;
+    }
+    suggEl.innerHTML = matches.map(m=>`
+      <div class="sugg-item" data-name="${m.name}">
+        <span class="sugg-num">#${String(m.id).padStart(3,'0')}</span>
+        <span>${capitalize(m.name)}</span>
+      </div>
+    `).join('');
+    suggEl.classList.add('open');
+    suggEl.querySelectorAll('.sugg-item[data-name]').forEach(item=>{
+      item.addEventListener('click', ()=>{
+        const name = item.getAttribute('data-name');
+        inputEl.value = capitalize(name);
+        close();
+        onSelect(name);
+      });
+    });
+  }
+
+  function close(){ suggEl.classList.remove('open'); suggEl.innerHTML = ''; activeIndex = -1; }
+
+  function keys(e){
+    const items = Array.from(suggEl.querySelectorAll('.sugg-item[data-name]'));
+    if(!items.length) return;
+    if(e.key === 'ArrowDown'){ e.preventDefault(); activeIndex = Math.min(activeIndex+1, items.length-1); highlight(items); }
+    else if(e.key === 'ArrowUp'){ e.preventDefault(); activeIndex = Math.max(activeIndex-1, 0); highlight(items); }
+    else if(e.key === 'Enter' && activeIndex >= 0){ e.preventDefault(); items[activeIndex].click(); }
+    else if(e.key === 'Escape'){ close(); }
+  }
+  function highlight(items){
+    items.forEach(i=>i.classList.remove('active'));
+    if(items[activeIndex]){ items[activeIndex].classList.add('active'); items[activeIndex].scrollIntoView({block:'nearest'}); }
+  }
+
+  inputEl.addEventListener('input', debounce);
+  inputEl.addEventListener('focus', debounce);
+  inputEl.addEventListener('keydown', keys);
+  document.addEventListener('click', (e)=>{ if(formEl && !formEl.contains(e.target)) close(); });
+}
+
+/* ---------------- SEARCH ---------------- */
+function doSearch(raw){
+  const q = (raw||'').trim().toLowerCase().replace('#','');
+  if(!q) return;
+  loadPokemon(q);
+}
+
+/* ---------------- ROUTING / VIEWS ---------------- */
+function setView(view){
+  const map = {
+    home: els.heroSection,
+    loading: els.loadingPanel,
+    error: els.errorPanel,
+    detail: els.detailView,
+    catalog: els.catalogView,
+    battle: els.battleView,
+    compare: els.compareView,
+    guess: els.guessView,
+    quiz: els.quizView,
+    achievements: els.achievementsView,
+  };
+  Object.entries(map).forEach(([key, el])=>{ if(el) el.hidden = key !== view; });
+  els.railsSection.hidden = !(view === 'home' || view === 'detail');
+  state.currentView = view;
+}
+
+function goHome(){
+  location.hash = '';
+  setView('home');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openCatalog(){
+  location.hash = '#/catalog';
+  setView('catalog');
+  if(els.catalogGrid.children.length === 0) loadCatalogBatch(true);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openBattle(){
+  location.hash = '#/battle';
+  setView('battle');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openCompare(){
+  location.hash = '#/compare';
+  setView('compare');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openGuess(){
+  location.hash = '#/guess';
+  setView('guess');
+  if(!state.guess.pokemonId || state.guess.answered) loadGuessRound();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openQuiz(){
+  location.hash = '#/quiz';
+  setView('quiz');
+  renderQuiz();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function openAchievements(){
+  location.hash = '#/achievements';
+  setView('achievements');
+  renderAchievements();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function handleRouteFromHash(){
+  const hash = location.hash.replace('#/','').replace('#','');
+  if(hash === 'catalog'){ openCatalog(); return; }
+  if(hash === 'battle'){ openBattle(); return; }
+  if(hash === 'compare'){ openCompare(); return; }
+  if(hash === 'guess'){ openGuess(); return; }
+  if(hash === 'quiz'){ openQuiz(); return; }
+  if(hash === 'achievements'){ openAchievements(); return; }
+  const pokemonMatch = hash.match(/^pokemon\/(.+)$/);
+  if(pokemonMatch) loadPokemon(pokemonMatch[1], true);
+}
+
+/* ---------------- LOAD POKEMON ---------------- */
+async function loadRandom(){
+  const id = Math.floor(Math.random()*1010) + 1;
+  loadPokemon(id);
+}
+
+async function loadPokemon(idOrName, skipHash){
+  state.lastRetry = idOrName;
+  showLoading();
+  try{
+    const res = await fetch(`${API}/pokemon/${idOrName}`);
+    if(!res.ok) throw new Error('not-found');
+    const pokemon = await res.json();
+
+    const speciesRes = await fetch(pokemon.species.url);
+    const species = await speciesRes.json();
+
+    const [evoChain, typeData] = await Promise.all([
+      fetchEvolutionChain(species.evolution_chain.url).catch(()=>null),
+      fetchTypeRelations(pokemon.types.map(t=>t.type.name)).catch(()=>null),
+    ]);
+
+    state.currentId = pokemon.id;
+    if(!skipHash) location.hash = `/pokemon/${pokemon.name}`;
+
+    addRecent(pokemon);
+    markViewed(pokemon, species);
+
+    renderDetail(pokemon, species, evoChain, typeData);
+    setView('detail');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }catch(err){
+    console.error(err);
+    showError(idOrName);
+  }
+}
+
+async function fetchEvolutionChain(url){
+  const res = await fetch(url);
+  const data = await res.json();
+  const chain = [];
+  let node = data.chain;
+  while(node){
+    chain.push({ name: node.species.name, id: idFromUrl(node.species.url) });
+    node = node.evolves_to[0];
+  }
+  return chain;
+}
+
+async function fetchTypeRelations(typeNames){
+  const results = await Promise.all(typeNames.map(t => fetch(`${API}/type/${t}`).then(r=>r.json())));
+  const mult = {};
+  ALL_TYPES.forEach(t => mult[t] = 1);
+  results.forEach(t=>{
+    t.damage_relations.double_damage_from.forEach(x => mult[x.name] = (mult[x.name]===0?0:mult[x.name]*2));
+    t.damage_relations.half_damage_from.forEach(x => mult[x.name] = (mult[x.name]===0?0:mult[x.name]*0.5));
+    t.damage_relations.no_damage_from.forEach(x => mult[x.name] = 0);
+  });
+  return mult;
+}
+
+function idFromUrl(url){
+  const parts = url.split('/').filter(Boolean);
+  return parseInt(parts[parts.length-1], 10);
+}
+
+/* ---------------- STATE PANELS ---------------- */
+function showLoading(){ setView('loading'); }
+function showError(query){
+  setView('error');
+  els.errorMessage.textContent = t('errorMessage', query);
+}
+
+/* ---------------- RENDER DETAIL ---------------- */
+function renderDetail(pokemon, species, evoChain, typeMult){
+  const primaryType = pokemon.types[0].type.name;
+  const gradient = `linear-gradient(135deg, var(--t-${primaryType}), var(--t-${primaryType}-2))`;
+
+  const artworkSets = getSpriteSet(pokemon);
+  const defaultSprite = artworkSets.find(s=>s.available) || artworkSets[0];
+
+  const genus = (species.genera.find(g=>g.language.name==='en') || {}).genus || '';
+  const flavor = (species.flavor_text_entries.find(f=>f.language.name==='en') || {}).flavor_text || '';
+
+  const isFav = state.favorites.includes(pokemon.id);
+
+  els.detailCard.innerHTML = `
+    <div class="dc-hero" style="background:${gradient}">
+      <button class="dc-fav ${isFav?'active':''}" id="favBtn" title="Toggle favorite">${isFav?'❤️':'🤍'}</button>
+      <div class="dc-num">#${String(pokemon.id).padStart(3,'0')}</div>
+      <div class="dc-art-wrap">
+        <img class="dc-art" id="dcArt" src="${defaultSprite ? defaultSprite.src : ''}" alt="${pokemon.name}" onerror="this.style.opacity=0.2" />
+      </div>
+      <h1 class="dc-name">${pokemon.name.replace(/-/g,' ')}</h1>
+      <div class="dc-genus">${escapeHtml(genus)}</div>
+      <div class="dc-types">
+        ${pokemon.types.map(t=>typeBadge(t.type.name)).join('')}
+      </div>
+      <div class="sprite-selector" id="spriteSelector">
+        ${artworkSets.map((s)=>`<button class="sprite-chip ${s===defaultSprite?'active':''}" data-src="${s.src||''}" ${s.available?'':'disabled style="opacity:.35;cursor:not-allowed"'}>${s.label}</button>`).join('')}
+      </div>
+      <button class="dc-cry" id="cryBtn">🔊 Play cry</button>
+      <div class="dc-export-row">
+        <button class="sprite-chip" id="exportPngBtn">📥 ${t('exportPng')}</button>
+        <button class="sprite-chip" id="shareCardBtn">🔗 ${t('shareCard')}</button>
+      </div>
+    </div>
+
+    <div class="dc-body">
+      <p style="color:#5B6478; font-weight:600; max-width:600px; margin: 4px auto 0; text-align:center;">${escapeHtml(flavor.replace(/\f|\n/g,' '))}</p>
+
+      <div class="info-grid">
+        <div class="info-cell"><div class="label">${t('height')}</div><div class="value">${(pokemon.height/10).toFixed(1)} m</div></div>
+        <div class="info-cell"><div class="label">${t('weight')}</div><div class="value">${(pokemon.weight/10).toFixed(1)} kg</div></div>
+        <div class="info-cell"><div class="label">${t('baseXp')}</div><div class="value">${pokemon.base_experience ?? '—'}</div></div>
+        <div class="info-cell"><div class="label">${t('habitat')}</div><div class="value">${species.habitat ? species.habitat.name.replace(/-/g,' ') : t('unknown')}</div></div>
+        <div class="info-cell"><div class="label">${t('shape')}</div><div class="value">${species.shape ? species.shape.name.replace(/-/g,' ') : '—'}</div></div>
+        <div class="info-cell"><div class="label">${t('color')}</div><div class="value">${species.color ? species.color.name : '—'}</div></div>
+        <div class="info-cell"><div class="label">${t('generation')}</div><div class="value">${species.generation.name.replace('generation-','Gen ').toUpperCase()}</div></div>
+        <div class="info-cell"><div class="label">${t('speciesNum')}</div><div class="value">${String(pokemon.id).padStart(4,'0')}</div></div>
+      </div>
+
+      <h2 class="section-title">${t('abilities')}</h2>
+      <div class="abilities-list" id="abilitiesList">
+        ${pokemon.abilities.map(a=>`
+          <div class="ability-chip ${a.is_hidden?'hidden-ability':''}" data-ability="${a.ability.name}">
+            ${a.ability.name.replace(/-/g,' ')}<span class="tag">${a.is_hidden?'hidden':''}</span>
+            <div class="ability-tooltip">…</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <h2 class="section-title">${t('baseStats')}</h2>
+      <div class="stats-wrap" id="statsWrap">
+        ${pokemon.stats.map(s=>statRow(s)).join('')}
+      </div>
+
+      <h2 class="section-title">${t('typeMatchups')}</h2>
+      <div class="weak-grid">
+        <div class="weak-row"><span class="weak-label">${t('weakAgainst')}</span>${weaknessBadges(typeMult, m=>m>1)}</div>
+        <div class="weak-row"><span class="weak-label">${t('resists')}</span>${weaknessBadges(typeMult, m=>m>0 && m<1)}</div>
+        <div class="weak-row"><span class="weak-label">${t('immuneTo')}</span>${weaknessBadges(typeMult, m=>m===0)}</div>
+      </div>
+
+      ${evoChain && evoChain.length > 1 ? `
+      <h2 class="section-title">${t('evolutionChain')}</h2>
+      <div class="evo-track" id="evoTrack">
+        ${evoChain.map((e,i)=>`
+          ${i>0?'<span class="evo-arrow">→</span>':''}
+          <div class="evo-node" data-id="${e.id}">
+            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${e.id}.png" alt="${e.name}" loading="lazy" />
+            <div class="evo-name">${e.name.replace(/-/g,' ')}</div>
+          </div>
+        `).join('')}
+      </div>` : ''}
+
+      <h2 class="section-title">${t('notableMoves')}</h2>
+      <div class="moves-grid">
+        ${pokemon.moves.slice(0,8).map(m=>`
+          <div class="move-chip">
+            <div class="move-name">${m.move.name.replace(/-/g,' ')}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('favBtn').addEventListener('click', ()=> toggleFavorite(pokemon));
+
+  document.querySelectorAll('#spriteSelector .sprite-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      if(chip.disabled) return;
+      document.querySelectorAll('#spriteSelector .sprite-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      const img = document.getElementById('dcArt');
+      img.style.opacity = 0;
+      setTimeout(()=>{ img.src = chip.dataset.src; img.style.opacity = 1; }, 150);
+    });
+  });
+
+  document.getElementById('cryBtn').addEventListener('click', ()=>{
+    const cryUrl = pokemon.cries && (pokemon.cries.latest || pokemon.cries.legacy);
+    if(cryUrl){
+      const audio = new Audio(cryUrl);
+      audio.volume = state.soundOn ? 0.7 : 0;
+      audio.play().catch(()=>{});
+    } else {
+      showToast(t('noCry'));
+    }
+  });
+
+  document.getElementById('exportPngBtn').addEventListener('click', async ()=>{
+    showToast(t('generatingCard'));
+    try{
+      const canvas = await buildExportCanvas(pokemon, species);
+      downloadCanvasPNG(canvas, `${pokemon.name}-pokedex-card.png`);
+      showToast(t('cardDownloaded'));
+    }catch(e){ console.error(e); showToast(t('cardExportFail')); }
+  });
+
+  document.getElementById('shareCardBtn').addEventListener('click', async ()=>{
+    try{
+      const canvas = await buildExportCanvas(pokemon, species);
+      canvas.toBlob(async (blob)=>{
+        if(!blob){ showToast(t('cardExportFail')); return; }
+        const file = new File([blob], `${pokemon.name}-pokedex-card.png`, { type:'image/png' });
+        if(navigator.canShare && navigator.canShare({ files:[file] })){
+          try{ await navigator.share({ files:[file], title: capitalize(pokemon.name), text: t('shareText', capitalize(pokemon.name)) }); }
+          catch(err){ /* user cancelled the native share sheet */ }
+        } else {
+          downloadCanvasPNG(canvas, `${pokemon.name}-pokedex-card.png`);
+          showToast(t('shareFallback'));
+        }
+      }, 'image/png');
+    }catch(e){ console.error(e); showToast(t('cardExportFail')); }
+  });
+
+  document.querySelectorAll('.evo-node').forEach(node=>{
+    node.addEventListener('click', ()=> loadPokemon(node.dataset.id));
+  });
+
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.stat-fill').forEach(bar=>{
+      const target = bar.dataset.width;
+      setTimeout(()=>{ bar.style.width = target + '%'; }, 80);
+    });
+    animateCountUp();
+  });
+
+  document.querySelectorAll('.ability-chip').forEach(chip=>{
+    let loaded = false;
+    chip.addEventListener('mouseenter', async ()=>{
+      if(loaded) return;
+      loaded = true;
+      try{
+        const res = await fetch(`${API}/ability/${chip.dataset.ability}`);
+        const data = await res.json();
+        const entry = data.effect_entries.find(e=>e.language.name==='en');
+        chip.querySelector('.ability-tooltip').textContent = entry ? entry.short_effect : 'No description available.';
+      }catch(e){
+        chip.querySelector('.ability-tooltip').textContent = 'No description available.';
+      }
+    });
+  });
+
+  els.prevBtn.disabled = pokemon.id <= 1;
+  els.prevBtn.style.opacity = pokemon.id <= 1 ? .5 : 1;
+}
+
+function statRow(s){
+  const label = { 'hp':'HP', 'attack':'ATK', 'defense':'DEF', 'special-attack':'SP.ATK', 'special-defense':'SP.DEF', 'speed':'SPD' }[s.stat.name] || s.stat.name;
+  const pct = Math.min(100, Math.round((s.base_stat/180)*100));
+  return `
+    <div class="stat-row">
+      <div class="stat-name">${label}</div>
+      <div class="stat-track"><div class="stat-fill" data-width="${pct}"></div></div>
+      <div class="stat-val" data-count="${s.base_stat}">0</div>
+    </div>
+  `;
+}
+function animateCountUp(){
+  document.querySelectorAll('.stat-val').forEach(el=>{
+    const target = parseInt(el.dataset.count, 10);
+    let cur = 0;
+    const step = Math.max(1, Math.round(target/24));
+    const timer = setInterval(()=>{
+      cur += step;
+      if(cur >= target){ cur = target; clearInterval(timer); }
+      el.textContent = cur;
+    }, 25);
+  });
+}
+
+function weaknessBadges(typeMult, filterFn){
+  if(!typeMult) return `<span style="color:#9AA3B5; font-weight:600; font-size:.85rem;">${t('unavailable')}</span>`;
+  const list = Object.entries(typeMult).filter(([,m])=>filterFn(m));
+  if(list.length === 0) return `<span style="color:#9AA3B5; font-weight:600; font-size:.85rem;">${t('none')}</span>`;
+  return list.map(([type,m])=> typeBadge(type, m)).join('');
+}
+
+function typeBadge(type, mult){
+  const suffix = mult && mult !== 1 ? ` <span style="opacity:.85">${mult}×</span>` : '';
+  return `<span class="type-badge t-${type}" data-type="${type}">${TYPE_EMOJI[type]||''} ${type}${suffix}</span>`;
+}
+
+function getSpriteSet(pokemon){
+  const s = pokemon.sprites;
+  const official = s.other && s.other['official-artwork'] && s.other['official-artwork'].front_default;
+  const home = s.other && s.other.home && s.other.home.front_default;
+  const dream = s.other && s.other.dream_world && s.other.dream_world.front_default;
+  const shiny = s.front_shiny;
+  const female = s.front_female;
+  const classic = s.front_default;
+  const animated = s.versions && s.versions['generation-v'] && s.versions['generation-v']['black-white'] &&
+    s.versions['generation-v']['black-white'].animated && s.versions['generation-v']['black-white'].animated.front_default;
+
+  return [
+    { label:'Artwork', src: official, available: !!official },
+    { label:'Home', src: home, available: !!home },
+    { label:'Classic', src: classic, available: !!classic },
+    { label:'Animated', src: animated, available: !!animated },
+    { label:'Shiny', src: shiny, available: !!shiny },
+    { label:'Female', src: female, available: !!female },
+    { label:'Dream World', src: dream, available: !!dream },
+  ];
+}
+
+function pickIdleSprite(pokemon){
+  const s = pokemon.sprites;
+  const animated = s.versions && s.versions['generation-v'] && s.versions['generation-v']['black-white'] &&
+    s.versions['generation-v']['black-white'].animated && s.versions['generation-v']['black-white'].animated.front_default;
+  const official = s.other && s.other['official-artwork'] && s.other['official-artwork'].front_default;
+  return animated || official || s.front_default || '';
+}
+
+/* ---------------- FAVORITES ---------------- */
+function toggleFavorite(pokemon){
+  const idx = state.favorites.indexOf(pokemon.id);
+  if(idx >= 0){
+    state.favorites.splice(idx,1);
+    showToast(t('favRemoved', capitalize(pokemon.name)));
+  } else {
+    state.favorites.push(pokemon.id);
+    showToast(t('favAdded', capitalize(pokemon.name)));
+    state.progress.favoritesAdded += 1;
+    saveProgress();
+    checkAchievements();
+  }
+  localStorage.setItem('pokedex_favorites', JSON.stringify(state.favorites));
+  const btn = document.getElementById('favBtn');
+  if(btn){
+    btn.classList.toggle('active');
+    btn.textContent = btn.classList.contains('active') ? '❤️' : '🤍';
+    btn.style.transform = 'scale(1.3)';
+    setTimeout(()=> btn.style.transform = '', 180);
+  }
+  els.favCount.textContent = state.favorites.length;
+  renderFavorites();
+}
+
+/* ---------------- RECENT ---------------- */
+function addRecent(pokemon){
+  state.recent = state.recent.filter(p=>p.id !== pokemon.id);
+  state.recent.unshift({
+    id: pokemon.id,
+    name: pokemon.name,
+    sprite: (pokemon.sprites.other && pokemon.sprites.other['official-artwork'].front_default) || pokemon.sprites.front_default,
+    types: pokemon.types.map(t=>t.type.name),
+  });
+  state.recent = state.recent.slice(0,10);
+  localStorage.setItem('pokedex_recent', JSON.stringify(state.recent));
+  renderRecent();
+}
+
+/* ---------------- RENDER RAILS ---------------- */
+function miniCard(id, name, sprite, types, delay){
+  return `
+    <div class="mini-card" data-id="${id}" style="animation-delay:${delay*0.04}s">
+      <img src="${sprite}" alt="${name}" loading="lazy" />
+      <div class="mini-num">#${String(id).padStart(3,'0')}</div>
+      <div class="mini-name">${name.replace(/-/g,' ')}</div>
+      <div class="mini-types">${types.map(t=>typeBadge(t)).join('')}</div>
+    </div>
+  `;
+}
+
+function renderTrending(){
+  els.trendingTrack.innerHTML = TRENDING_IDS.map((id,i)=>`
+    <div class="mini-card" data-id="${id}" style="animation-delay:${i*0.04}s">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png" alt="pokemon ${id}" loading="lazy" />
+      <div class="mini-num">#${String(id).padStart(3,'0')}</div>
+      <div class="mini-name" id="trend-name-${id}">…</div>
+      <div class="mini-types" id="trend-types-${id}"></div>
+    </div>
+  `).join('');
+
+  attachMiniCardClicks(els.trendingTrack);
+
+  TRENDING_IDS.forEach(async id=>{
+    try{
+      const res = await fetch(`${API}/pokemon/${id}`);
+      const data = await res.json();
+      const nameEl = document.getElementById(`trend-name-${id}`);
+      const typesEl = document.getElementById(`trend-types-${id}`);
+      if(nameEl) nameEl.textContent = data.name.replace(/-/g,' ');
+      if(typesEl) typesEl.innerHTML = data.types.map(t=>typeBadge(t.type.name)).join('');
+    }catch(e){ /* ignore */ }
+  });
+}
+
+function renderRecent(){
+  if(state.recent.length === 0){
+    els.recentTrack.innerHTML = `<p class="rail-empty">${t('recentEmpty')}</p>`;
+    return;
+  }
+  els.recentTrack.innerHTML = state.recent.map((p,i)=>miniCard(p.id,p.name,p.sprite,p.types,i)).join('');
+  attachMiniCardClicks(els.recentTrack);
+}
+
+function renderFavorites(){
+  els.favCount.textContent = state.favorites.length;
+  if(state.favorites.length === 0){
+    els.favTrack.innerHTML = `<p class="rail-empty">${t('favEmpty')}</p>`;
+    return;
+  }
+  els.favTrack.innerHTML = state.favorites.map((id,i)=>`
+    <div class="mini-card" data-id="${id}" style="animation-delay:${i*0.04}s">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png" alt="pokemon ${id}" loading="lazy" />
+      <div class="mini-num">#${String(id).padStart(3,'0')}</div>
+      <div class="mini-name" id="fav-name-${id}">…</div>
+      <div class="mini-types" id="fav-types-${id}"></div>
+    </div>
+  `).join('');
+  attachMiniCardClicks(els.favTrack);
+
+  state.favorites.forEach(async id=>{
+    try{
+      const res = await fetch(`${API}/pokemon/${id}`);
+      const data = await res.json();
+      const nameEl = document.getElementById(`fav-name-${id}`);
+      const typesEl = document.getElementById(`fav-types-${id}`);
+      if(nameEl) nameEl.textContent = data.name.replace(/-/g,' ');
+      if(typesEl) typesEl.innerHTML = data.types.map(t=>typeBadge(t.type.name)).join('');
+    }catch(e){ /* ignore */ }
+  });
+}
+
+function attachMiniCardClicks(container){
+  container.querySelectorAll('.mini-card').forEach(card=>{
+    card.addEventListener('click', (e)=>{
+      if(e.target.closest('.type-badge')) return; // let the type-badge handler open the type modal instead
+      loadPokemon(card.dataset.id);
+    });
+  });
+}
+
+/* ---------------- CATALOG ---------------- */
+function renderCatalogFilters(){
+  const activeType = state.catalog.filterType;
+  const allBtn = `<button class="filter-chip ${!activeType?'active':''}" data-type="">${t('allTypes')}</button>`;
+  const chips = ALL_TYPES.map(ty=>`<button class="filter-chip ${activeType===ty?'active':''}" data-type="${ty}">${TYPE_EMOJI[ty]||''} ${ty}</button>`).join('');
+  els.catalogFilters.innerHTML = allBtn + chips;
+  els.catalogFilters.querySelectorAll('.filter-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      els.catalogFilters.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      state.catalog.filterType = chip.dataset.type || null;
+      loadCatalogBatch(true);
+    });
+  });
+}
+
+async function loadCatalogBatch(reset){
+  if(reset){
+    state.catalog.offset = 0;
+    state.catalog.endReached = false;
+    els.catalogGrid.innerHTML = '';
+  }
+  if(state.catalog.endReached){ els.loadMoreBtn.hidden = true; return; }
+
+  els.catalogLoadingDots.hidden = false;
+  els.loadMoreBtn.disabled = true;
+
+  try{
+    if(state.catalog.filterType){
+      let list = state.catalog.typeListCache[state.catalog.filterType];
+      if(!list){
+        const res = await fetch(`${API}/type/${state.catalog.filterType}`);
+        const data = await res.json();
+        list = data.pokemon.map(p=>({ name: p.pokemon.name, id: idFromUrl(p.pokemon.url) })).sort((a,b)=>a.id-b.id);
+        state.catalog.typeListCache[state.catalog.filterType] = list;
+      }
+      const slice = list.slice(state.catalog.offset, state.catalog.offset + state.catalog.limit);
+      slice.forEach((p,i)=> appendCatalogCard(p.id, p.name, i));
+      state.catalog.offset += state.catalog.limit;
+      state.catalog.endReached = state.catalog.offset >= list.length;
+    } else {
+      const res = await fetch(`${API}/pokemon?limit=${state.catalog.limit}&offset=${state.catalog.offset}`);
+      const data = await res.json();
+      data.results.forEach((p,i)=> appendCatalogCard(idFromUrl(p.url), p.name, i));
+      state.catalog.offset += state.catalog.limit;
+      state.catalog.endReached = !data.next;
+    }
+  }catch(e){
+    console.error(e);
+    showToast(t('catalogLoadFail'));
+  }
+
+  els.catalogLoadingDots.hidden = true;
+  els.loadMoreBtn.disabled = false;
+  els.loadMoreBtn.hidden = state.catalog.endReached;
+}
+
+function appendCatalogCard(id, name, i){
+  const div = document.createElement('div');
+  div.className = 'mini-card';
+  div.dataset.id = id;
+  div.style.animationDelay = (i*0.03)+'s';
+  div.innerHTML = `
+    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png" alt="${name}" loading="lazy" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png'"/>
+    <div class="mini-num">#${String(id).padStart(3,'0')}</div>
+    <div class="mini-name">${name.replace(/-/g,' ')}</div>
+    <div class="mini-types" id="cat-types-${id}"></div>
+  `;
+  div.addEventListener('click', (e)=>{
+    if(e.target.closest('.type-badge')) return;
+    loadPokemon(id);
+  });
+  els.catalogGrid.appendChild(div);
+  fetch(`${API}/pokemon/${id}`).then(r=>r.json()).then(data=>{
+    const typesEl = document.getElementById(`cat-types-${id}`);
+    if(typesEl) typesEl.innerHTML = data.types.map(t=>typeBadge(t.type.name)).join('');
+  }).catch(()=>{});
+}
+
+/* ---------------- TYPE MODAL ---------------- */
+async function openTypeModal(type){
+  els.typeModalOverlay.hidden = false;
+  els.typeModalHeader.innerHTML = `<h2>${TYPE_EMOJI[type]||''} ${type}</h2><p>${t('loadingText')}</p>`;
+  els.typeModalBody.innerHTML = '';
+  try{
+    const res = await fetch(`${API}/type/${type}`);
+    const data = await res.json();
+    const list = data.pokemon.map(p=>({name:p.pokemon.name, id: idFromUrl(p.pokemon.url)})).sort((a,b)=>a.id-b.id);
+    const shown = list.slice(0,60);
+    els.typeModalHeader.innerHTML = `<h2>${TYPE_EMOJI[type]||''} ${type}</h2><p>${t('typeModalNote', shown.length, list.length)}</p>`;
+    els.typeModalBody.innerHTML = shown.map((p,i)=>`
+      <div class="mini-card" data-id="${p.id}" style="animation-delay:${i*0.02}s">
+        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${p.id}.png" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${p.id}.png'"/>
+        <div class="mini-num">#${String(p.id).padStart(3,'0')}</div>
+        <div class="mini-name">${p.name.replace(/-/g,' ')}</div>
+      </div>
+    `).join('');
+    els.typeModalBody.querySelectorAll('.mini-card').forEach(card=>{
+      card.addEventListener('click', ()=>{ closeTypeModal(); loadPokemon(card.dataset.id); });
+    });
+  }catch(e){
+    els.typeModalBody.innerHTML = `<p>Failed to load.</p>`;
+  }
+}
+function closeTypeModal(){ els.typeModalOverlay.hidden = true; }
+
+/* ---------------- BATTLE ---------------- */
+async function selectBattlePokemon(key, nameOrId){
+  try{
+    const res = await fetch(`${API}/pokemon/${nameOrId}`);
+    if(!res.ok) throw new Error('not-found');
+    const data = await res.json();
+    state.battle[key] = data;
+    const previewEl = key === 'p1' ? els.p1Preview : els.p2Preview;
+    const inputEl = key === 'p1' ? els.p1SearchInput : els.p2SearchInput;
+    const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+    previewEl.innerHTML = `<img src="${sprite}" alt="${data.name}"/>`;
+    inputEl.value = capitalize(data.name);
+    checkBattleReady();
+  }catch(e){
+    showToast(t('notFoundToast', nameOrId));
+  }
+}
+function checkBattleReady(){
+  els.fightBtn.disabled = !(state.battle.p1 && state.battle.p2);
+}
+function resetBattle(){
+  state.battle = { p1: null, p2: null };
+  els.p1Preview.innerHTML = `<div class="picker-placeholder">?</div>`;
+  els.p2Preview.innerHTML = `<div class="picker-placeholder">?</div>`;
+  els.p1SearchInput.value = '';
+  els.p2SearchInput.value = '';
+  els.fightBtn.disabled = true;
+  els.arena.hidden = true;
+  els.battleLog.hidden = true;
+  els.battleLog.innerHTML = '';
+  els.battleResetBtn.hidden = true;
+  els.fighterLeft.className = 'fighter fighter-left';
+  els.fighterRight.className = 'fighter fighter-right';
+  document.getElementById('f1KoText').className = 'ko-container';
+  document.getElementById('f2KoText').className = 'ko-container';
+}
+
+function statVal(pokemon, key){ return pokemon.stats.find(s=>s.stat.name===key).base_stat; }
+
+function prepFighter(pokemon){
+  const hp = statVal(pokemon,'hp');
+  const atk = (statVal(pokemon,'attack') + statVal(pokemon,'special-attack')) / 2;
+  const def = (statVal(pokemon,'defense') + statVal(pokemon,'special-defense')) / 2;
+  const speed = statVal(pokemon,'speed');
+  const maxHp = Math.round(hp*2 + 20);
+  return { pokemon, maxHp, hp: maxHp, atk, def, speed, types: pokemon.types.map(t=>t.type.name) };
+}
+
+function sleep(ms){ return new Promise(r=> setTimeout(r, ms)); }
+
+function updateHpBar(fillEl, textEl, hp, maxHp){
+  const pct = Math.max(0, Math.round((hp/maxHp)*100));
+  fillEl.style.width = pct + '%';
+  fillEl.classList.toggle('hp-mid', pct<=50 && pct>20);
+  fillEl.classList.toggle('hp-low', pct<=20);
+  textEl.textContent = `${Math.max(0,Math.round(hp))} / ${maxHp} HP`;
+}
+
+function addLog(text, cls){
+  const div = document.createElement('div');
+  div.className = 'log-line ' + (cls||'');
+  div.textContent = text;
+  els.battleLog.appendChild(div);
+  els.battleLog.scrollTop = els.battleLog.scrollHeight;
+}
+
+async function runBattle(){
+  if(!state.battle.p1 || !state.battle.p2){ showToast(t('pickBothPlayers')); return; }
+  const ko1 = document.getElementById('f1KoText');
+  const ko2 = document.getElementById('f2KoText');
+  if(ko1) ko1.className = 'ko-container';
+  if(ko2) ko2.className = 'ko-container';
+  playThrow();
+  els.fightBtn.disabled = true;
+  els.arena.hidden = false;
+  els.battleLog.hidden = false;
+  els.battleLog.innerHTML = '';
+  els.battleResetBtn.hidden = true;
+  els.fighterLeft.className = 'fighter fighter-left';
+  els.fighterRight.className = 'fighter fighter-right';
+
+  const f1 = prepFighter(state.battle.p1);
+  const f2 = prepFighter(state.battle.p2);
+
+  els.f1Name.textContent = capitalize(f1.pokemon.name);
+  els.f2Name.textContent = capitalize(f2.pokemon.name);
+  els.f1Sprite.src = pickIdleSprite(f1.pokemon);
+  els.f2Sprite.src = pickIdleSprite(f2.pokemon);
+  updateHpBar(els.f1HpFill, els.f1HpText, f1.hp, f1.maxHp);
+  updateHpBar(els.f2HpFill, els.f2HpText, f2.hp, f2.maxHp);
+
+  addLog(t('battleStartLog', capitalize(f1.pokemon.name), capitalize(f2.pokemon.name)));
+  await sleep(500);
+
+  let mult1v2 = 1, mult2v1 = 1;
+  try{
+    const [m2, m1] = await Promise.all([ fetchTypeRelations(f2.types), fetchTypeRelations(f1.types) ]);
+    mult1v2 = Math.max(...f1.types.map(ty => m2[ty] ?? 1));
+    mult2v1 = Math.max(...f2.types.map(ty => m1[ty] ?? 1));
+  }catch(e){ /* fall back to neutral multipliers */ }
+
+  let round = 1;
+  while(f1.hp > 0 && f2.hp > 0 && round <= 40){
+    const firstIs1 = f1.speed === f2.speed ? Math.random() < 0.5 : f1.speed > f2.speed;
+    const order = firstIs1
+      ? [['left', f1, f2, mult1v2], ['right', f2, f1, mult2v1]]
+      : [['right', f2, f1, mult2v1], ['left', f1, f2, mult1v2]];
+
+    for(const [side, attacker, defender, mult] of order){
+      if(attacker.hp <= 0 || defender.hp <= 0) continue;
+      await performAttack(side, attacker, defender, mult, f1, f2);
+      if(defender.hp <= 0) break;
+    }
+    round++;
+  }
+
+  await sleep(300);
+  state.progress.battlesPlayed += 1;
+  if(f1.hp <= 0 && f2.hp <= 0){
+    addLog(t('drawLog'), 'winner-line');
+  } else {
+    const f1Wins = f1.hp > 0;
+    const winner = f1Wins ? f1 : f2;
+    const winnerEl = f1Wins ? els.fighterLeft : els.fighterRight;
+    winnerEl.classList.add('winner');
+    addLog(t('winnerLog', capitalize(winner.pokemon.name)), 'winner-line');
+    state.progress.battlesWon += 1;
+
+    // Victory Modal logic
+    const p1Name = document.getElementById('p1Label')?.innerText.trim() || 'Player 1';
+    const p2Name = document.getElementById('p2Label')?.innerText.trim() || 'Player 2';
+    const winnerName = f1Wins ? p1Name : p2Name;
+    const victoryText = state.lang === 'id' ? `${winnerName} memenangkan pertandingan!` : `${winnerName} wins the battle!`;
+    
+    const vModal = document.getElementById('victoryModal');
+    const vMessage = document.getElementById('victoryMessage');
+    const vSprite = document.getElementById('victorySprite');
+    if(vModal && vMessage && vSprite) {
+      vMessage.innerText = victoryText;
+      vSprite.src = pickIdleSprite(winner.pokemon);
+      vModal.hidden = false;
+      playVictorySound();
+    }
+  }
+  saveProgress();
+  checkAchievements();
+  els.battleResetBtn.hidden = false;
+}
+
+async function performAttack(side, attacker, defender, mult, f1, f2){
+  const attackerEl = side === 'left' ? els.fighterLeft : els.fighterRight;
+  const defenderEl = side === 'left' ? els.fighterRight : els.fighterLeft;
+
+  attackerEl.classList.add(side === 'left' ? 'attacking-left' : 'attacking-right');
+  playClick();
+  await sleep(320);
+
+  const variance = 0.85 + Math.random()*0.3;
+  let dmg = Math.round((attacker.atk / defender.def) * 16 * variance * mult);
+  dmg = Math.max(3, Math.min(dmg, Math.round(defender.maxHp * 0.42)));
+
+  defender.hp = Math.max(0, defender.hp - dmg);
+
+  defenderEl.classList.add('hit');
+  const defenderIsF1 = defender === f1;
+  updateHpBar(
+    defenderIsF1 ? els.f1HpFill : els.f2HpFill,
+    defenderIsF1 ? els.f1HpText : els.f2HpText,
+    defender.hp, defender.maxHp
+  );
+
+  let effText = '';
+  if(mult > 1) effText = t('superEffective');
+  else if(mult > 0 && mult < 1) effText = t('notVeryEffective');
+  else if(mult === 0) effText = t('noEffect');
+
+  addLog(
+    t('attackLog', capitalize(attacker.pokemon.name), dmg, effText),
+    mult > 1 ? 'super' : (mult < 1 && mult > 0 ? 'notvery' : '')
+  );
+
+  await sleep(480);
+  attackerEl.classList.remove('attacking-left','attacking-right');
+  defenderEl.classList.remove('hit');
+
+  if(defender.hp <= 0){
+    defenderEl.classList.add('ko');
+    addLog(t('faintedLog', capitalize(defender.pokemon.name)));
+    
+    // Pemicu Pop-out Animasi K.O.
+    const koEl = defenderIsF1 ? document.getElementById('f1KoText') : document.getElementById('f2KoText');
+    koEl.classList.add('ko-animate-in');
+
+    await sleep(500);
+  } else {
+    await sleep(220);
+  }
+}
+
+/* ---------------- VICTORY SOUND & MODAL CLOSE ---------------- */
+document.getElementById('victoryCloseBtn')?.addEventListener('click', () => {
+  document.getElementById('victoryModal').hidden = true;
+});
+
+function playVictorySound() {
+  if (!state.soundOn) return;
+  try {
+    const victorySound = new Audio('assets/GAMECas-Casino_grand_prize_w-Elevenlabs.mp3');
+    victorySound.volume = 0.8;
+    victorySound.play().catch(e => {
+      console.warn("Browser memblokir pemutaran audio otomatis:", e);
+    });
+  } catch(e) {
+    console.error("Gagal memutar audio kemenangan:", e);
+  }
+}
+
+/* ---------------- ACHIEVEMENTS / PROGRESS TRACKING ---------------- */
+function saveProgress(){ localStorage.setItem('pokedex_progress', JSON.stringify(state.progress)); }
+
+function markViewed(pokemon, species){
+  let changed = false;
+  if(!state.progress.viewedIds.includes(pokemon.id)){ state.progress.viewedIds.push(pokemon.id); changed = true; }
+  pokemon.types.forEach(ty=>{
+    if(!state.progress.typesSeen.includes(ty.type.name)){ state.progress.typesSeen.push(ty.type.name); changed = true; }
+  });
+  if((species.is_legendary || species.is_mythical) && !state.progress.legendaryViewed.includes(pokemon.id)){
+    state.progress.legendaryViewed.push(pokemon.id); changed = true;
+  }
+  if(changed){ saveProgress(); checkAchievements(); }
+}
+
+const ACHIEVEMENTS = [
+  { id:'first_steps',      icon:'👣', target:()=>1,   current:()=> state.progress.viewedIds.length },
+  { id:'explorer',         icon:'🧭', target:()=>50,  current:()=> state.progress.viewedIds.length },
+  { id:'century',          icon:'💯', target:()=>100, current:()=> state.progress.viewedIds.length },
+  { id:'full_dex',         icon:'📚', target:()=> Math.max(state.allNames.length,1), current:()=> state.progress.viewedIds.length },
+  { id:'type_collector',   icon:'🌈', target:()=>18,  current:()=> state.progress.typesSeen.length },
+  { id:'legend_hunter',    icon:'✨', target:()=>5,   current:()=> state.progress.legendaryViewed.length },
+  { id:'heart_collector',  icon:'❤️', target:()=>10,  current:()=> state.progress.favoritesAdded },
+  { id:'battle_champion',  icon:'⚔️', target:()=>5,   current:()=> state.progress.battlesWon },
+  { id:'quiz_master',      icon:'🧠', target:()=>10,  current:()=> state.progress.quizCorrect },
+  { id:'guess_pro',        icon:'🎯', target:()=>10,  current:()=> state.progress.guessCorrect },
+];
+
+function checkAchievements(){
+  ACHIEVEMENTS.forEach(a=>{
+    const cur = a.current(), tgt = a.target();
+    if(cur >= tgt && !state.unlockedAchievements.includes(a.id)){
+      state.unlockedAchievements.push(a.id);
+      localStorage.setItem('pokedex_unlocked_achievements', JSON.stringify(state.unlockedAchievements));
+      showToast(t('achievementUnlocked', t('ach_'+a.id+'_name')));
+    }
+  });
+  if(state.currentView === 'achievements') renderAchievements();
+}
+
+function renderAchievements(){
+  const total = Math.max(state.allNames.length, state.progress.viewedIds.length, 1);
+  const viewed = state.progress.viewedIds.length;
+  const pct = Math.min(100, Math.round((viewed/total)*100));
+  els.dexProgressFill.style.width = pct + '%';
+  els.dexProgressText.textContent = t('dexProgressLabel', viewed, total);
+
+  els.badgeGrid.innerHTML = ACHIEVEMENTS.map(a=>{
+    const tgt = a.target();
+    const cur = Math.min(a.current(), tgt);
+    const unlocked = state.unlockedAchievements.includes(a.id);
+    const pctB = Math.min(100, Math.round((cur/tgt)*100));
+    return `
+      <div class="badge-card ${unlocked?'unlocked':''}">
+        <div class="badge-icon">${a.icon}</div>
+        <div class="badge-name">${t('ach_'+a.id+'_name')}</div>
+        <div class="badge-desc">${t('ach_'+a.id+'_desc')}</div>
+        <div class="badge-progress-track"><div class="badge-progress-fill" style="width:${pctB}%"></div></div>
+        <div style="font-size:.7rem; font-weight:800; color:#9AA3B5; margin-top:6px;">${cur} / ${tgt}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ---------------- COMPARE ---------------- */
+async function selectComparePokemon(key, nameOrId){
+  try{
+    const res = await fetch(`${API}/pokemon/${nameOrId}`);
+    if(!res.ok) throw new Error('not-found');
+    const data = await res.json();
+    state.compare[key] = data;
+    const previewEl = key === 'a' ? els.cAPreview : els.cBPreview;
+    const inputEl = key === 'a' ? els.cASearchInput : els.cBSearchInput;
+    const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+    previewEl.innerHTML = `<img src="${sprite}" alt="${data.name}"/>`;
+    inputEl.value = capitalize(data.name);
+    if(state.compare.a && state.compare.b) renderCompare();
+  }catch(e){
+    showToast(t('notFoundToast', nameOrId));
+  }
+}
+
+function renderCompare(){
+  const a = state.compare.a, b = state.compare.b;
+  const spriteA = pickIdleSprite(a);
+  const spriteB = pickIdleSprite(b);
+  const statLabels = { hp:'HP', attack:'ATK', defense:'DEF', 'special-attack':'SP.ATK', 'special-defense':'SP.DEF', speed:'SPD' };
+
+  let totalA = 0, totalB = 0;
+  const rows = a.stats.map((s,i)=>{
+    const valA = s.base_stat, valB = b.stats[i].base_stat;
+    totalA += valA; totalB += valB;
+    const pctA = Math.min(100, Math.round((valA/180)*100));
+    const pctB = Math.min(100, Math.round((valB/180)*100));
+    const label = statLabels[s.stat.name] || s.stat.name;
+    return `
+      <div class="cmp-stat-row">
+        <div class="cmp-stat-label">${label}</div>
+        <div class="cmp-bar-row">
+          <div class="cmp-bar-wrap left"><span class="cmp-val ${valA>valB?'winner':''}">${valA}</span><div class="cmp-bar-track"><div class="cmp-bar-fill" data-width="${pctA}"></div></div></div>
+          <div class="cmp-bar-wrap right"><div class="cmp-bar-track"><div class="cmp-bar-fill" data-width="${pctB}"></div></div><span class="cmp-val ${valB>valA?'winner':''}">${valB}</span></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Menentukan pemenang dan arah hadap animasinya
+  let summary = '';
+  let winnerSprite = '';
+  let winnerClass = ''; 
+  
+  if(totalA === totalB) {
+    summary = t('cmpTie');
+  } else {
+    const winnerName = capitalize((totalA > totalB ? a.name : b.name).replace(/-/g,' '));
+    summary = t('cmpWinnerText', winnerName);
+    winnerSprite = totalA > totalB ? spriteA : spriteB;
+    winnerClass = totalA > totalB ? 'cmp-winner-left' : 'cmp-winner-right';
+  }
+
+  els.compareResult.innerHTML = `
+    <div class="compare-top">
+      <div class="cmp-hero-wrap">
+        <img src="${spriteA}" alt="${a.name}" class="cmp-animated-sprite cmp-left-img" />
+        <div class="cmp-name">${capitalize(a.name.replace(/-/g,' '))}</div>
+        <div class="cmp-types">${a.types.map(ty=>typeBadge(ty.type.name)).join('')}</div>
+      </div>
+      <div class="compare-vs">VS</div>
+      <div class="cmp-hero-wrap">
+        <img src="${spriteB}" alt="${b.name}" class="cmp-animated-sprite cmp-right-img" />
+        <div class="cmp-name">${capitalize(b.name.replace(/-/g,' '))}</div>
+        <div class="cmp-types">${b.types.map(ty=>typeBadge(ty.type.name)).join('')}</div>
+      </div>
+    </div>
+    ${rows}
+    <div class="cmp-summary">
+      ${winnerSprite ? `<img src="${winnerSprite}" alt="Winner" class="cmp-winner-img ${winnerClass}" />` : ''}
+      <span>${summary}</span>
+    </div>
+  `;
+  els.compareResult.hidden = false;
+
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('#compareResult .cmp-bar-fill[data-width]').forEach(bar=>{
+      setTimeout(()=>{ bar.style.width = bar.dataset.width + '%'; }, 60);
+    });
+  });
+}
+
+/* ---------------- WHO'S THAT POKÉMON? ---------------- */
+function updateGuessScore(){
+  els.guessScore.textContent = `${state.progress.guessCorrect} / ${state.progress.guessTotal}`;
+}
+
+async function loadGuessRound(){
+  els.guessImg.classList.remove('revealed');
+  els.guessChoices.innerHTML = '';
+  els.guessNextBtn.classList.remove('show');
+  const id = Math.floor(Math.random()*1010) + 1;
+  try{
+    const res = await fetch(`${API}/pokemon/${id}`);
+    const data = await res.json();
+    state.guess.pokemonId = id;
+    state.guess.correctName = data.name;
+    state.guess.answered = false;
+
+    const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+    els.guessImg.src = sprite;
+
+    const pool = state.allNames.length ? state.allNames : [];
+    const shuffled = [...pool].sort(()=> Math.random()-0.5);
+    const distractors = [];
+    for(const p of shuffled){
+      if(p.name !== data.name && !distractors.includes(p.name)) distractors.push(p.name);
+      if(distractors.length >= 3) break;
+    }
+    while(distractors.length < 3){ distractors.push(data.name + '-x' + distractors.length); }
+
+    const choices = [...distractors, data.name].sort(()=> Math.random()-0.5);
+    els.guessChoices.innerHTML = choices.map(name=>`<button class="guess-choice" data-name="${name}">${capitalize(name.replace(/-/g,' '))}</button>`).join('');
+    els.guessChoices.querySelectorAll('.guess-choice').forEach(btn=>{
+      btn.addEventListener('click', ()=> checkGuessAnswer(btn));
+    });
+    updateGuessScore();
+  }catch(e){
+    console.error(e);
+    showToast(t('catalogLoadFail'));
+  }
+}
+
+function checkGuessAnswer(btn){
+  if(state.guess.answered) return;
+  state.guess.answered = true;
+  const chosen = btn.dataset.name;
+  const correct = chosen === state.guess.correctName;
+
+  els.guessChoices.querySelectorAll('.guess-choice').forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.name === state.guess.correctName) b.classList.add('correct');
+    else if(b === btn) b.classList.add('wrong');
+  });
+  els.guessImg.classList.add('revealed');
+
+  state.progress.guessTotal += 1;
+  if(correct){
+    state.progress.guessCorrect += 1;
+    playClick();
+    showToast(t('guessCorrect') + capitalize(state.guess.correctName.replace(/-/g,' ')));
+  } else {
+    playThrow();
+    showToast(t('guessWrong', capitalize(state.guess.correctName.replace(/-/g,' '))));
+  }
+  saveProgress();
+  checkAchievements();
+  updateGuessScore();
+  els.guessNextBtn.classList.add('show');
+}
+
+/* ---------------- DAILY QUIZ ---------------- */
+function hashStringToInt(str){
+  let hash = 0;
+  for(let i=0;i<str.length;i++){ hash = (hash*31 + str.charCodeAt(i)) >>> 0; }
+  return hash;
+}
+function todayDateStr(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function getDailyQuizRecord(){
+  const today = todayDateStr();
+  const stored = JSON.parse(localStorage.getItem('pokedex_daily_quiz') || 'null');
+  if(stored && stored.date === today) return stored;
+  const seed = hashStringToInt('pokedex-quiz-'+today);
+  const id = (seed % 1010) + 1;
+  const record = { date: today, pokemonId: id, answered: false, correct: null };
+  localStorage.setItem('pokedex_daily_quiz', JSON.stringify(record));
+  return record;
+}
+function saveDailyQuizRecord(record){ localStorage.setItem('pokedex_daily_quiz', JSON.stringify(record)); }
+
+async function renderQuiz(){
+  const record = getDailyQuizRecord();
+  els.quizDate.textContent = record.date;
+  try{
+    const res = await fetch(`${API}/pokemon/${record.pokemonId}`);
+    const data = await res.json();
+    const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+
+    if(record.answered){
+      els.quizBody.innerHTML = `
+        <div class="quiz-card">
+          <img src="${sprite}" alt="${data.name}" style="width:180px;height:180px;margin:0 auto 14px;display:block;" />
+          <div class="quiz-question">${record.correct ? t('quizYourAnswerCorrect', capitalize(data.name.replace(/-/g,' '))) : t('quizYourAnswerWrong', capitalize(data.name.replace(/-/g,' ')))}</div>
+          <p style="font-weight:700; color:#9AA3B5;">${t('quizAlreadyPlayed')}</p>
+          <div class="quiz-streak">${t('quizScoreLine', state.progress.quizCorrect, state.progress.quizTotal)}</div>
+        </div>
+      `;
+      return;
+    }
+
+    const pool = state.allNames.length ? state.allNames : [];
+    const shuffled = [...pool].sort(()=> Math.random()-0.5);
+    const distractors = [];
+    for(const p of shuffled){
+      if(p.name !== data.name && !distractors.includes(p.name)) distractors.push(p.name);
+      if(distractors.length >= 3) break;
+    }
+    while(distractors.length < 3){ distractors.push(data.name + '-x' + distractors.length); }
+    const choices = [...distractors, data.name].sort(()=> Math.random()-0.5);
+
+    els.quizBody.innerHTML = `
+      <div class="quiz-card">
+        <img src="${sprite}" alt="mystery" class="guess-silhouette" id="quizImg" style="width:180px;height:180px;margin:0 auto 14px;display:block;" />
+        <div class="quiz-question">${t('quizQuestion')}</div>
+        <div class="quiz-choices" id="quizChoices">
+          ${choices.map(name=>`<button class="quiz-choice" data-name="${name}">${capitalize(name.replace(/-/g,' '))}</button>`).join('')}
+        </div>
+      </div>
+    `;
+    els.quizBody.querySelectorAll('.quiz-choice').forEach(btn=>{
+      btn.addEventListener('click', ()=> answerQuiz(btn, data.name, record));
+    });
+  }catch(e){
+    console.error(e);
+    els.quizBody.innerHTML = `<p>${t('catalogLoadFail')}</p>`;
+  }
+}
+
+function answerQuiz(btn, correctName, record){
+  const chosen = btn.dataset.name;
+  const correct = chosen === correctName;
+
+  els.quizBody.querySelectorAll('.quiz-choice').forEach(b=>{
+    b.disabled = true;
+    if(b.dataset.name === correctName) b.classList.add('correct');
+    else if(b === btn) b.classList.add('wrong');
+  });
+  const img = document.getElementById('quizImg');
+  if(img) img.classList.add('revealed');
+
+  record.answered = true;
+  record.correct = correct;
+  saveDailyQuizRecord(record);
+
+  state.progress.quizTotal += 1;
+  if(correct){ state.progress.quizCorrect += 1; playClick(); }
+  else{ playThrow(); }
+  saveProgress();
+  checkAchievements();
+
+  setTimeout(()=> renderQuiz(), 900);
+}
+
+/* ---------------- PNG EXPORT / SHARE ---------------- */
+const TYPE_COLORS = {
+  normal:['#A8A278','#c6c096'], fire:['#FF9D55','#FF4D4D'], water:['#6EC6FF','#3B82F6'],
+  electric:['#FFD93D','#FFB020'], grass:['#7ED957','#3FA34D'], ice:['#86E8F5','#5FC9E8'],
+  fighting:['#F0765B','#C2410C'], poison:['#C67FE0','#9333EA'], ground:['#E2C173','#B08D3E'],
+  flying:['#B7C6FF','#8395E8'], psychic:['#FF7EB6','#EC4899'], bug:['#B4D93B','#849E1F'],
+  rock:['#D2C08A','#A08A4C'], ghost:['#A78BFA','#6D28D9'], dragon:['#8E7CFF','#5836DB'],
+  dark:['#7A7266','#41392F'], steel:['#C9D3DE','#8E9BAB'], fairy:['#FFB3DA','#F472B6'],
+};
+
+function roundRectPath(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+function loadImageSafe(url){
+  return new Promise(resolve=>{
+    if(!url){ resolve(null); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = ()=> resolve(img);
+    img.onerror = ()=> resolve(null);
+    img.src = url;
+  });
+}
+
+async function buildExportCanvas(pokemon, species){
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  const canvas = els.exportCanvas;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const primaryType = pokemon.types[0].type.name;
+  const colors = TYPE_COLORS[primaryType] || ['#FFD93D','#FF4D4D'];
+
+  ctx.clearRect(0,0,W,H);
+  roundRectPath(ctx,0,0,W,H,36);
+  const bgGrad = ctx.createLinearGradient(0,0,W,H);
+  bgGrad.addColorStop(0, colors[0]);
+  bgGrad.addColorStop(1, colors[1]);
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  ctx.save();
+  ctx.globalAlpha = 0.10;
+  for(let i=0;i<4;i++){
+    ctx.beginPath();
+    ctx.arc(W-90, 130, 50+i*46, 0, Math.PI*2);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 7;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  const artUrl = (pokemon.sprites.other && pokemon.sprites.other['official-artwork'] && pokemon.sprites.other['official-artwork'].front_default) || pokemon.sprites.front_default;
+  const img = await loadImageSafe(artUrl);
+  if(img){
+    const size = 380, ix = (W-size)/2, iy = 84;
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 30;
+    ctx.shadowOffsetY = 18;
+    ctx.drawImage(img, ix, iy, size, size);
+    ctx.restore();
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.font = '700 28px Nunito, Arial, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('#'+String(pokemon.id).padStart(3,'0'), 40, 58);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '700 50px Fredoka, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(capitalize(pokemon.name.replace(/-/g,' ')), W/2, 508);
+
+  const genus = (species.genera.find(g=>g.language.name==='en')||{}).genus || '';
+  ctx.font = '700 20px Nunito, Arial, sans-serif';
+  ctx.globalAlpha = 0.9;
+  ctx.fillText(genus, W/2, 540);
+  ctx.globalAlpha = 1;
+
+  ctx.font = '700 16px Nunito, Arial, sans-serif';
+  const badgeGap = 10, badgeH = 34;
+  const widths = pokemon.types.map(tp => ctx.measureText(tp.type.name.toUpperCase()).width + 36);
+  const totalW = widths.reduce((s,w)=>s+w,0) + badgeGap*(widths.length-1);
+  let bx = W/2 - totalW/2;
+  const by = 562;
+  pokemon.types.forEach((tp,i)=>{
+    const label = tp.type.name.toUpperCase();
+    const tw = widths[i];
+    roundRectPath(ctx, bx, by, tw, badgeH, 17);
+    ctx.fillStyle = 'rgba(255,255,255,0.28)';
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, bx+tw/2, by+23);
+    bx += tw + badgeGap;
+  });
+
+  const panelX = 40, panelY = 620, panelW = W-80, panelH = 300;
+  roundRectPath(ctx, panelX, panelY, panelW, panelH, 26);
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.fill();
+
+  const statLabels = { hp:'HP', attack:'ATK', defense:'DEF', 'special-attack':'SP.ATK', 'special-defense':'SP.DEF', speed:'SPD' };
+  const rowH = (panelH - 50) / 6;
+  let sy = panelY + 44;
+  pokemon.stats.forEach(s=>{
+    const label = statLabels[s.stat.name] || s.stat.name;
+    const val = s.base_stat;
+    const pct = Math.min(1, val/180);
+
+    ctx.fillStyle = '#2D3748';
+    ctx.font = '700 15px Nunito, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(label, panelX+24, sy+5);
+
+    const trackX = panelX+118, trackW = panelW-220, trackY = sy-9, trackH = 13;
+    roundRectPath(ctx, trackX, trackY, trackW, trackH, 6);
+    ctx.fillStyle = 'rgba(45,55,72,0.08)';
+    ctx.fill();
+    roundRectPath(ctx, trackX, trackY, Math.max(trackW*pct,4), trackH, 6);
+    const barGrad = ctx.createLinearGradient(trackX,0,trackX+trackW,0);
+    barGrad.addColorStop(0, colors[0]);
+    barGrad.addColorStop(1, colors[1]);
+    ctx.fillStyle = barGrad;
+    ctx.fill();
+
+    ctx.fillStyle = '#2D3748';
+    ctx.textAlign = 'right';
+    ctx.fillText(String(val), panelX+panelW-24, sy+5);
+    sy += rowH;
+  });
+
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '600 15px Nunito, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('Generated with Pokédex · pokeapi.co', W/2, H-28);
+
+  return canvas;
+}
+
+function downloadCanvasPNG(canvas, filename){
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = canvas.toDataURL('image/png');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+/* ---------------- HELPERS ---------------- */
+function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
