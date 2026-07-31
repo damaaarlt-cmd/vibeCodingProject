@@ -74,7 +74,10 @@ body.dark ::-webkit-scrollbar-thumb:hover {
   --t-fairy:   #FFB3DA; --t-fairy-2:#F472B6;
 }
 
-*,*::before,*::after{ box-sizing: border-box; }
+*,*::before,*::after { 
+  box-sizing: border-box; 
+  -webkit-tap-highlight-color: transparent; /* Mematikan kotak biru di SEMUA elemen */
+}
 html{ scroll-behavior: smooth; }
 body{
   margin:0; font-family: var(--font-body); color: var(--ink);
