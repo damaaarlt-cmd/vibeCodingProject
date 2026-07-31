@@ -1272,6 +1272,11 @@ function resetBattle(){
   els.p2Preview.innerHTML = `<div class="picker-placeholder">?</div>`;
   els.p1SearchInput.value = '';
   els.p2SearchInput.value = '';
+  
+  // 👉 TAMBAHAN BARU: Buka kembali kolom pencarian
+  els.p1SearchInput.disabled = false;
+  els.p2SearchInput.disabled = false;
+  
   els.fightBtn.disabled = true;
   els.arena.hidden = true;
   els.battleLog.hidden = true;
@@ -1279,8 +1284,10 @@ function resetBattle(){
   els.battleResetBtn.hidden = true;
   els.fighterLeft.className = 'fighter fighter-left';
   els.fighterRight.className = 'fighter fighter-right';
-  document.getElementById('f1KoText').className = 'ko-container';
-  document.getElementById('f2KoText').className = 'ko-container';
+  const ko1 = document.getElementById('f1KoText');
+  const ko2 = document.getElementById('f2KoText');
+  if(ko1) ko1.className = 'ko-container';
+  if(ko2) ko2.className = 'ko-container';
 }
 
 function statVal(pokemon, key){ return pokemon.stats.find(s=>s.stat.name===key).base_stat; }
@@ -1314,6 +1321,13 @@ function addLog(text, cls){
 
 async function runBattle(){
   if(!state.battle.p1 || !state.battle.p2){ showToast(t('pickBothPlayers')); return; }
+  
+  // 👉 TAMBAHAN BARU: Buat ID unik & kunci input
+  state.activeBattleId = (state.activeBattleId || 0) + 1;
+  const myBattleId = state.activeBattleId;
+  els.p1SearchInput.disabled = true;
+  els.p2SearchInput.disabled = true;
+
   const ko1 = document.getElementById('f1KoText');
   const ko2 = document.getElementById('f2KoText');
   if(ko1) ko1.className = 'ko-container';
@@ -1355,12 +1369,22 @@ async function runBattle(){
       : [['right', f2, f1, mult2v1], ['left', f1, f2, mult1v2]];
 
     for(const [side, attacker, defender, mult] of order){
+      // 👉 TAMBAHAN BARU: Hentikan loop jika ada pertarungan baru
+      if(state.activeBattleId !== myBattleId) return; 
+      
       if(attacker.hp <= 0 || defender.hp <= 0) continue;
-      await performAttack(side, attacker, defender, mult, f1, f2);
+      
+      // Jangan lupa teruskan myBattleId ke performAttack
+      await performAttack(side, attacker, defender, mult, f1, f2, myBattleId);
+      
+      if(state.activeBattleId !== myBattleId) return; 
       if(defender.hp <= 0) break;
     }
     round++;
   }
+
+  // 👉 TAMBAHAN BARU: Cegah modal kemenangan muncul dari pertarungan yang sudah batal
+  if(state.activeBattleId !== myBattleId) return; 
 
   await sleep(300);
   state.progress.battlesPlayed += 1;
@@ -1374,7 +1398,6 @@ async function runBattle(){
     addLog(t('winnerLog', capitalize(winner.pokemon.name)), 'winner-line');
     state.progress.battlesWon += 1;
 
-    // Victory Modal logic
     const p1Name = document.getElementById('p1Label')?.innerText.trim() || 'Player 1';
     const p2Name = document.getElementById('p2Label')?.innerText.trim() || 'Player 2';
     const winnerName = f1Wins ? p1Name : p2Name;
@@ -1395,13 +1418,18 @@ async function runBattle(){
   els.battleResetBtn.hidden = false;
 }
 
-async function performAttack(side, attacker, defender, mult, f1, f2){
+// Tambahkan parameter myBattleId di bagian paling belakang
+async function performAttack(side, attacker, defender, mult, f1, f2, myBattleId){
+  if(state.activeBattleId !== myBattleId) return;
+
   const attackerEl = side === 'left' ? els.fighterLeft : els.fighterRight;
   const defenderEl = side === 'left' ? els.fighterRight : els.fighterLeft;
 
   attackerEl.classList.add(side === 'left' ? 'attacking-left' : 'attacking-right');
   playClick();
   await sleep(320);
+
+  if(state.activeBattleId !== myBattleId) return; // Cek lagi setelah sleep
 
   const variance = 0.85 + Math.random()*0.3;
   let dmg = Math.round((attacker.atk / defender.def) * 16 * variance * mult);
@@ -1428,6 +1456,8 @@ async function performAttack(side, attacker, defender, mult, f1, f2){
   );
 
   await sleep(480);
+  if(state.activeBattleId !== myBattleId) return; // Cek lagi
+
   attackerEl.classList.remove('attacking-left','attacking-right');
   defenderEl.classList.remove('hit');
 
@@ -1435,9 +1465,8 @@ async function performAttack(side, attacker, defender, mult, f1, f2){
     defenderEl.classList.add('ko');
     addLog(t('faintedLog', capitalize(defender.pokemon.name)));
     
-    // Pemicu Pop-out Animasi K.O.
     const koEl = defenderIsF1 ? document.getElementById('f1KoText') : document.getElementById('f2KoText');
-    koEl.classList.add('ko-animate-in');
+    if(koEl) koEl.classList.add('ko-animate-in');
 
     await sleep(500);
   } else {
