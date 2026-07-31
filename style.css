@@ -268,7 +268,19 @@ body.dark .btn-soft{ background:#2B2745; color:#fff; }
 /* ================= RAILS (home) ================= */
 .rails{ display:flex; flex-direction:column; gap:36px; margin-top: 30px; }
 .rail-title{ font-family: var(--font-display); font-size:1.3rem; margin: 0 0 14px 4px; }
-.rail-track{ display:flex; gap:16px; overflow-x:auto; padding: 6px 4px 14px; scroll-snap-type: x proximity; }
+.rail-track { 
+  display: flex; 
+  gap: 16px; 
+  overflow-x: auto; 
+  padding: 6px 4px 14px; 
+  
+  /* 1. Mematikan efek mantul (karet) saat mentok di ujung kiri/kanan */
+  overscroll-behavior-x: contain; 
+  
+  /* 2. Opsional: Kalau kamu tidak suka efek "magnet" yang menarik kartu, 
+     hapus/jadikan komentar kode di bawah ini. Kalau suka, biarkan saja. */
+  /* scroll-snap-type: x proximity; */
+}
 .rail-empty{ color:#9AA3B5; font-weight:600; padding: 20px 4px; }
 
 .mini-card{
