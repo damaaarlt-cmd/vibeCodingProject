@@ -85,8 +85,15 @@ body.dark{
   background: linear-gradient(180deg, #191A2C 0%, #1E1B34 45%, #22192F 100%); color: #F4F1FF;
 }
 img{ max-width:100%; display:block; }
-button{ font-family: inherit; cursor:pointer; }
-input{ font-family: inherit; }
+button, a, input { 
+  font-family: inherit; 
+  cursor: pointer; 
+  /* Mematikan kotak biru transparan saat ditekan di HP */
+  -webkit-tap-highlight-color: transparent; 
+}
+input { 
+  font-family: inherit; 
+}
 ::selection{ background: var(--yellow); color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce){
@@ -106,15 +113,35 @@ body.dark .blob{ opacity:.28; }
   66%{ transform: translate(-25px,25px) scale(0.95); }
 }
 
-.floating-balls{ position:absolute; inset:0; }
-.fball{
-  position:absolute; width:34px; height:34px; border-radius:50%;
-  background: linear-gradient(180deg, var(--red) 0%, var(--red) 48%, var(--ink) 48%, var(--ink) 52%, #fff 52%, #fff 100%);
-  border:2px solid rgba(45,55,72,.25); opacity:.5; animation: drift 14s ease-in-out infinite;
-}
-.fball::after{ content:''; position:absolute; inset:38%; background:#fff; border-radius:50%; border:2px solid rgba(45,55,72,.25); }
-@keyframes drift{ 0%{ transform: translateY(110vh) rotate(0deg); } 100%{ transform: translateY(-10vh) rotate(360deg); } }
+.floating-balls { position: absolute; inset: 0; }
 
+.fball {
+  position: absolute; 
+  width: 34px; 
+  height: 34px; 
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--red) 0%, var(--red) 48%, var(--ink) 48%, var(--ink) 52%, #fff 52%, #fff 100%);
+  border: 2px solid rgba(45, 55, 72, 0.25); 
+  opacity: .5; 
+  animation: drift 14s ease-in-out infinite;
+  
+  /* Trik jitu untuk mencegah warna background bocor melewati border */
+  background-clip: padding-box; 
+}
+
+.fball::after { 
+  content: ''; 
+  position: absolute; 
+  inset: 38%; 
+  background: #fff; 
+  border-radius: 50%; 
+  border: 2px solid rgba(45, 55, 72, 0.25); 
+}
+
+@keyframes drift { 
+  0% { transform: translateY(110vh) rotate(0deg); } 
+  100% { transform: translateY(-10vh) rotate(360deg); } 
+}
 .sparkles{ position:absolute; inset:0; }
 .sparkle{
   position:absolute; width:6px; height:6px; background: var(--yellow); border-radius:50%;
@@ -135,10 +162,11 @@ body.dark .topbar{ background: rgba(25,26,44,0.72); border-bottom-color: rgba(25
 }
 .brand{ display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink); }
 body.dark .brand{ color:#fff; }
-.brand-ball{
-  width:30px; height:30px; border-radius:50%; flex:none;
+.brand-ball {
+  width: 30px; height: 30px; border-radius: 50%; flex: none;
   background: linear-gradient(180deg, var(--red) 0%, var(--red) 46%, var(--ink) 46%, var(--ink) 54%, #fff 54%, #fff 100%);
-  border:2px solid var(--ink); position:relative;
+  border: 2px solid var(--ink); position: relative;
+  overflow: hidden; /* Memotong warna yang luber */
 }
 .brand-ball::after{ content:''; position:absolute; inset:32%; background:#fff; border-radius:50%; border:2px solid var(--ink); }
 .brand-text{ font-family: var(--font-display); font-weight:700; font-size:1.3rem; letter-spacing:.2px; }
@@ -169,10 +197,11 @@ main{ max-width: 1180px; margin: 0 auto; padding: 20px 24px 80px; }
 /* ================= HERO ================= */
 .hero{ text-align:center; padding: 56px 20px 40px; position:relative; }
 .hero-illustration{ display:flex; justify-content:center; margin-bottom:6px; }
-.hero-pokeball{
-  width:64px; height:64px; border-radius:50%;
+.hero-pokeball {
+  width: 64px; height: 64px; border-radius: 50%;
   background: linear-gradient(180deg, var(--red) 0%, var(--red) 46%, var(--ink) 46%, var(--ink) 54%, #fff 54%, #fff 100%);
-  border:3px solid var(--ink); position:relative; box-shadow: var(--shadow-soft);
+  border: 3px solid var(--ink); position: relative; box-shadow: var(--shadow-soft);
+  overflow: hidden; /* Memotong warna yang luber */
 }
 .hero-pokeball::after{ content:''; position:absolute; inset:32%; background:#fff; border-radius:50%; border:3px solid var(--ink); }
 .spin-slow{ animation: spin 5s linear infinite; }
@@ -281,10 +310,11 @@ body.dark .mini-card{ background:#241F3D; border-color: rgba(255,255,255,.06); }
 .state-panel{ text-align:center; padding: 60px 20px; }
 .state-text{ font-weight:700; color:#5B6478; margin-top:14px; }
 body.dark .state-text{ color:#B7B2D6; }
-.pokeball-spinner{
-  width:70px; height:70px; margin:0 auto; border-radius:50%; position:relative;
+.pokeball-spinner {
+  width: 70px; height: 70px; margin: 0 auto; border-radius: 50%; position: relative;
   background: linear-gradient(180deg, var(--red) 0%, var(--red) 46%, var(--ink) 46%, var(--ink) 54%, #fff 54%, #fff 100%);
-  border:3px solid var(--ink); animation: spin 1s linear infinite;
+  border: 3px solid var(--ink); animation: spin 1s linear infinite;
+  overflow: hidden; /* Memotong warna yang luber */
 }
 .pb-inner{ position:absolute; inset:32%; background:#fff; border-radius:50%; border:3px solid var(--ink); }
 .dots{ display:flex; justify-content:center; gap:8px; margin-top:18px; }
@@ -650,7 +680,8 @@ body.dark .hp-track{ background: rgba(255,255,255,.1); }
 .fighter.attacking-left .fighter-sprite { animation: lunge-p1 .5s ease; }
 @keyframes lunge-p1 { 
   0%,100% { transform: scaleX(-1) translateX(0); } 
-  40% { transform: scaleX(-1) translateX(34px) scale(1.06); } 
+  /* Ubah 34px menjadi -34px agar majunya ke kanan menuju Player 2 */
+  40% { transform: scaleX(-1) translateX(-34px) scale(1.06); } 
 }
 
 .fighter.attacking-right .fighter-sprite { animation: lunge-p2 .5s ease; }
@@ -813,6 +844,15 @@ body.dark .victory-panel h2 { color: #fff; }
   /* Mempertahankan ukuran sprite animasi saat battle */
   .fighter-sprite-wrap { height: 110px; }
   .fighter-sprite { width: 110px; height: 110px; }
+  .ko-text { 
+    font-size: 26px; 
+    letter-spacing: -2px; 
+  }
+  
+  /* Menyesuaikan titik tengahnya (110px dibagi 2 = 55px dari bawah) */
+  .ko-container { 
+    top: calc(100% - 55px); 
+  }
 }
 
 /* ======================================================
@@ -1016,33 +1056,64 @@ body.dark .badge-progress-track{ background: rgba(255,255,255,.08); }
   .quiz-choices{ grid-template-columns: 1fr 1fr; }
   .more-dropdown{ right:-40px; }
 }
-
 /* =========================================
    📱 MOBILE RESPONSIVE FIXES (Tampilan HP)
    ========================================= */
 @media screen and (max-width: 768px) {
   
   /* 1. Mencegah Menu Dropdown terpotong di kanan layar */
-  /* Catatan: Ganti ".dropdown-menu" dengan nama class menu-mu jika berbeda (misal: .more-menu / .nav-menu) */
-  .dropdown-menu, 
-  #moreMenu {
-    right: 10px !important;    /* Kunci posisi di kanan agar tidak keluar layar */
-    left: auto !important;     /* Matikan posisi kiri agar tidak bentrok */
-    transform: none !important; /* Hapus efek geser dari tengah jika ada */
+  .more-dropdown {
+    right: 0 !important;       /* Kunci di kanan persis tombol Lainnya */
+    left: auto !important;
+    transform: none !important;
     width: max-content;
-    max-width: 90vw;           /* Jangan sampai lebih lebar dari layar HP */
+    max-width: 90vw;
   }
 
-  /* 2. Merapikan jarak tombol-tombol di Header agar tidak terlalu rapat */
-  .header-controls, 
-  .top-buttons {
+  /* 2. Merapikan jarak tombol-tombol di Header */
+  .nav-actions {
     gap: 8px !important;
   }
 
-  /* 3. Mengecilkan sedikit ukuran font dan tombol utama agar lebih pas di HP */
-  .hero-buttons button,
-  .action-btn {
+  /* 3. Mengecilkan tombol utama sedikit agar rapi di HP */
+  .btn {
     font-size: 0.85rem !important;
     padding: 10px 16px !important;
+  }
+  /* =========================================
+     4. MEMAKSA HEADER MENJADI 2 BARIS SAJA
+     ========================================= */
+  
+  /* Merapatkan jarak antar elemen di header */
+  .topbar-inner {
+    gap: 10px 4px !important; 
+    padding: 12px 10px !important;
+  }
+  
+  /* Mengecilkan sedikit teks "Pokédex" dan logo bola */
+  .brand-text {
+    font-size: 1.05rem !important;
+  }
+  .brand-ball {
+    width: 24px !important; 
+    height: 24px !important;
+  }
+
+  /* Merapatkan dan mengecilkan tombol navigasi */
+  .nav-actions {
+    gap: 6px !important;
+  }
+  .topbar .pill-btn {
+    height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 0.8rem !important;
+  }
+  .topbar .pill-btn.icon-only {
+    width: 36px !important;
+  }
+  
+  /* Menghilangkan teks "Lainnya" agar muat sebaris (Sisa ikon ☰) */
+  #moreNavBtn span:last-child {
+    display: none !important;
   }
 }
