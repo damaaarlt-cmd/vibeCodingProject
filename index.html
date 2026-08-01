@@ -63,13 +63,12 @@
           <button class="more-item" id="achievementsNavBtn"><span class="icon-emoji">🏆</span><span data-i18n="achievementsTitle">Achievements</span></button>
         </div>
       </div>
-
     </nav>
   </div>
 </header>
 
 <main id="mainContent">
-  <!-- ============ HERO / HOME ============ -->
+  <!-- ============ 1. HERO BANNER ============ -->
   <section class="hero" id="heroSection">
     <div class="hero-illustration" aria-hidden="true"><div class="hero-pokeball spin-slow"></div></div>
     <h1 class="hero-title" data-i18n-html="heroTitle">Meet every Pokémon,<br>up close.</h1>
@@ -95,6 +94,58 @@
       <button class="btn btn-soft" id="achievementsBtn" data-i18n="achievementsBtnHome">🏆 Achievements</button>
       <button class="btn btn-soft" id="clearHistoryBtn" data-i18n="clearHistory">🕑 Clear history</button>
     </div>
+  </section>
+
+  <!-- ============ SUSUNAN BARU (LANDING PAGE) ============ -->
+  <section class="home-extras" id="homeExtras">
+    
+    <!-- 2. Popular Pokémon -->
+    <div class="rail" id="trendingRail">
+      <h2 class="rail-title" data-i18n="trending">✨ Trending Pokémon</h2>
+      <div class="rail-track" id="trendingTrack"></div>
+    </div>
+
+    <!-- 3. Random Discovery -->
+    <div class="feature-block" id="randomDiscoveryBlock">
+      <h2 class="rail-title" data-i18n="randomDiscoveryTitle">🔀 Random Discovery</h2>
+      <div class="discovery-card" id="discoveryCard"></div>
+    </div>
+
+    <!-- 4. Explore by Region -->
+    <div class="feature-block" id="exploreRegionBlock">
+      <h2 class="rail-title" data-i18n="exploreRegionTitle">🗺️ Explore by Region</h2>
+      <p class="feature-sub" data-i18n="exploreRegionSub">Jump straight into a generation's Pokédex.</p>
+      <div class="region-grid" id="regionGrid"></div>
+    </div>
+
+    <!-- 5. Top Strongest -->
+    <div class="feature-block" id="topStrongestBlock">
+      <h2 class="rail-title" data-i18n="topStrongestTitle">💪 Top Strongest</h2>
+      <p class="feature-sub" data-i18n="topStrongestSub">Ranked by total base stats.</p>
+      <div class="strongest-list" id="strongestList"></div>
+    </div>
+
+    <!-- 6. Pokémon Fun Facts -->
+    <div class="feature-block" id="funFactsBlock">
+      <h2 class="rail-title" data-i18n="funFactsTitle">💡 Pokémon Fun Facts</h2>
+      <div class="fun-facts-grid" id="funFactsGrid"></div>
+      <div style="text-align:center; margin-top:16px;">
+        <button class="btn btn-soft" id="shuffleFactsBtn" data-i18n="shuffleFacts">🔀 Shuffle Facts</button>
+      </div>
+    </div>
+
+    <!-- 7. Recently Viewed -->
+    <div class="rail" id="recentRail">
+      <h2 class="rail-title" data-i18n="recent">🕑 Recently Viewed</h2>
+      <div class="rail-track" id="recentTrack"><p class="rail-empty" data-i18n="recentEmpty">Pokémon you view will show up here.</p></div>
+    </div>
+
+    <!-- 8. Favorite Pokémon -->
+    <div class="rail" id="favRail">
+      <h2 class="rail-title" data-i18n="favorites">❤️ Favorites</h2>
+      <div class="rail-track" id="favTrack"><p class="rail-empty" data-i18n="favEmpty">Tap the heart on any Pokémon to save it here.</p></div>
+    </div>
+
   </section>
 
   <!-- ============ LOADING STATE ============ -->
@@ -132,6 +183,10 @@
       <h1 data-i18n="catalogTitle">📖 Pokémon Catalog</h1>
       <p data-i18n="catalogSub">Browse every Pokémon — perfect if you can't remember a name.</p>
       <div class="catalog-filters" id="catalogFilters"></div>
+      <div class="catalog-region-banner" id="catalogRegionBanner" hidden>
+        <span id="catalogRegionText"></span>
+        <button class="filter-chip" id="catalogRegionClear">✕ <span data-i18n="clearFilter">Clear</span></button>
+      </div>
     </div>
     <div class="catalog-grid" id="catalogGrid"></div>
     <div class="catalog-load-row">
@@ -182,7 +237,7 @@
         <div class="hp-text" id="f1HpText">0 / 0 HP</div>
         <div class="fighter-sprite-wrap"><img class="fighter-sprite idle-bob" id="f1Sprite" alt="" /></div>
         
-        <!-- Tambahkan K.O. Container P1 di sini -->
+        <!-- K.O. Container P1 -->
         <div class="ko-container" id="f1KoText"><div class="ko-text" data-text="K.O.">K.O.</div></div>
       </div>
       
@@ -195,7 +250,7 @@
         <div class="hp-text" id="f2HpText">0 / 0 HP</div>
         <div class="fighter-sprite-wrap"><img class="fighter-sprite idle-bob" id="f2Sprite" alt="" /></div>
         
-        <!-- Tambahkan K.O. Container P2 di sini -->
+        <!-- K.O. Container P2 -->
         <div class="ko-container" id="f2KoText"><div class="ko-text" data-text="K.O.">K.O.</div></div>
       </div>
     </div>
@@ -265,21 +320,8 @@
     <div class="badge-grid" id="badgeGrid"></div>
   </section>
 
-  <!-- ============ RAILS ============ -->
-  <section class="rails" id="railsSection">
-    <div class="rail" id="trendingRail">
-      <h2 class="rail-title" data-i18n="trending">✨ Trending Pokémon</h2>
-      <div class="rail-track" id="trendingTrack"></div>
-    </div>
-    <div class="rail" id="recentRail">
-      <h2 class="rail-title" data-i18n="recent">🕑 Recently Viewed</h2>
-      <div class="rail-track" id="recentTrack"><p class="rail-empty" data-i18n="recentEmpty">Pokémon you view will show up here.</p></div>
-    </div>
-    <div class="rail" id="favRail">
-      <h2 class="rail-title" data-i18n="favorites">❤️ Favorites</h2>
-      <div class="rail-track" id="favTrack"><p class="rail-empty" data-i18n="favEmpty">Tap the heart on any Pokémon to save it here.</p></div>
-    </div>
-  </section>
+  <!-- Dummy section to prevent JS crash since rails were moved into homeExtras -->
+  <section id="railsSection" hidden></section>
 
 </main>
 
