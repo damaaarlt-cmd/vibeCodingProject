@@ -117,14 +117,15 @@ const I18N = {
     cmpWinnerText:(name)=>`🏆 ${name} has the higher total base stats!`,
     cmpTie:"🤝 It's a tie on total base stats!",
 
-    guessTitle:"Who's That Pokémon?", guessBtnHome:"🎮 Guess Game", guessSub:"Guess the Pokémon from its silhouette.",
+    guessTitle:"Who's That Pokémon?", guessBtnHome:"🎮 Guess Game", guessSub:"10 silhouettes. Answer them all to earn your Trainer Rank!",
     nextRound:"Next Silhouette →", seeRank:"See My Rank →",
     guessCorrect:"🎉 Correct! It's ",
     guessWrong:(name)=>`❌ Nope! It was ${name}.`,
     questionCounter:(n,total)=>`Question ${n} / ${total}`,
     quizComplete:"Quiz Complete!", scoreLabel:"Score", accuracyLabel:"Accuracy",
-    playAgain:"Play Again", shareResult:"Share Result",
-    resultBestScore:(n)=>`🏆 Best score: ${n} / 10`,
+    playAgain:"Play Again", shareResult:"Share Result", startQuiz:"Start Quiz",
+    rankOverviewTitle:"Trainer Rank",
+    resultBestScore:(n)=>`🏆 Personal best: ${n} / 10`,
     rank_youngster_title:"🎒 Youngster",
     rank_youngster_desc:"A new Trainer beginning their Pokémon journey. Keep exploring and you'll become stronger.",
     rank_youngster_msg:"Every great Trainer starts somewhere. Keep exploring!",
@@ -239,31 +240,32 @@ const I18N = {
     cmpWinnerText:(name)=>`🏆 ${name} punya total statistik dasar lebih tinggi!`,
     cmpTie:"🤝 Seri dalam total statistik dasar!",
 
-    guessTitle:"Siapakah Pokémon Ini?", guessBtnHome:"🎮 Tebak Pokémon", guessSub:"Tebak Pokémon dari siluetnya.",
+    guessTitle:"Siapakah Pokémon Ini?", guessBtnHome:"🎮 Tebak Pokémon", guessSub:"10 siluet. Jawab semuanya untuk meraih Trainer Rank-mu!",
     nextRound:"Siluet Berikutnya →", seeRank:"Lihat Peringkatku →",
     guessCorrect:"🎉 Benar! Itu adalah ",
     guessWrong:(name)=>`❌ Salah! Itu adalah ${name}.`,
     questionCounter:(n,total)=>`Soal ${n} / ${total}`,
     quizComplete:"Kuis Selesai!", scoreLabel:"Skor", accuracyLabel:"Akurasi",
-    playAgain:"Main Lagi", shareResult:"Bagikan Hasil",
-    resultBestScore:(n)=>`🏆 Skor terbaik: ${n} / 10`,
-    rank_youngster_title:"🎒 Youngster",
+    playAgain:"Main Lagi", shareResult:"Bagikan Hasil", startQuiz:"Mulai Kuis",
+    rankOverviewTitle:"Trainer Rank",
+    resultBestScore:(n)=>`🏆 Rekor pribadi: ${n} / 10`,
+    rank_youngster_title:"🎒 Pemula",
     rank_youngster_desc:"Trainer baru yang baru memulai perjalanan Pokémon-nya. Terus jelajahi dan kamu akan makin kuat.",
     rank_youngster_msg:"Setiap Trainer hebat pasti mulai dari suatu tempat. Terus jelajahi!",
-    rank_trainer_title:"🧢 Pokémon Trainer",
+    rank_trainer_title:"🧢 Pelatih Pokémon",
     rank_trainer_desc:"Kamu sudah paham dasar-dasarnya. Terus jelajahi Pokémon lain untuk menambah wawasanmu.",
     rank_trainer_msg:"Kerja bagus! Kenali beberapa spesies lagi dan peringkatmu akan naik.",
-    rank_ace_title:"⚔️ Ace Trainer",
+    rank_ace_title:"⚔️ Pelatih Andalan",
     rank_ace_desc:"Kerja bagus! Pengetahuan Pokémon-mu sudah cukup solid dan kamu semakin terampil.",
-    rank_ace_msg:"Kamu makin kuat! Sedikit lagi latihan dan kamu akan sampai ke Gym Leader.",
-    rank_gym_title:"🏅 Gym Leader",
+    rank_ace_msg:"Kamu makin kuat! Sedikit lagi latihan dan kamu akan sampai ke Pemimpin Gym.",
+    rank_gym_title:"🏅 Pemimpin Gym",
     rank_gym_desc:"Luar biasa! Pengetahuan Pokémon-mu mengesankan. Hanya sedikit Trainer yang bisa sampai level ini.",
-    rank_gym_msg:"Mantap! Tinggal beberapa jawaban benar lagi menuju Champion.",
-    rank_champion_title:"👑 Champion",
+    rank_gym_msg:"Mantap! Tinggal beberapa jawaban benar lagi menuju Juara.",
+    rank_champion_title:"👑 Juara",
     rank_champion_desc:"Hebat sekali! Kamu termasuk Trainer terbaik. Tinggal satu langkah lagi.",
-    rank_champion_msg:"Luar biasa! Tinggal skor sempurna yang memisahkanmu dari gelar Pokémon Master.",
-    rank_master_title:"⭐ Pokémon Master",
-    rank_master_desc:"Skor Sempurna! Kamu benar-benar seorang Pokémon Master. Selamat!",
+    rank_champion_msg:"Luar biasa! Tinggal skor sempurna yang memisahkanmu dari gelar Master Pokémon.",
+    rank_master_title:"⭐ Master Pokémon",
+    rank_master_desc:"Skor Sempurna! Kamu benar-benar seorang Master Pokémon. Selamat!",
     rank_master_msg:"Sempurna! Pengetahuan Pokémon-mu legendaris.",
     shareRankText:(rank,score)=>`Peringkatku ${rank} (${score}/10) di kuis Siapakah Pokémon Ini! Bisakah kamu mengalahkan skorku?`,
 
@@ -414,6 +416,11 @@ const els = {
   compareResult: document.getElementById('compareResult'),
 
   guessView: document.getElementById('guessView'),
+  guessHeading: document.getElementById('guessHeading'),
+  guessIntro: document.getElementById('guessIntro'),
+  guessRankGrid: document.getElementById('guessRankGrid'),
+  startQuizBtn: document.getElementById('startQuizBtn'),
+  introBest: document.getElementById('introBest'),
   guessPlay: document.getElementById('guessPlay'),
   guessImg: document.getElementById('guessImg'),
   guessChoices: document.getElementById('guessChoices'),
@@ -481,6 +488,7 @@ const state = {
   compare: { a: null, b: null },
   guess: {
     pokemonId: null, correctName: null, answered: false,
+    phase: 'intro',        // 'intro' | 'playing' | 'result'
     round: 0,              // 0-based index of current question (0..9)
     sessionScore: 0,       // correct answers this session
     usedIds: [],           // pokemon ids already used this session (avoid repeats)
@@ -551,11 +559,13 @@ function bindEvents(){
     }
     if(state.currentView === 'compare' && state.compare.a && state.compare.b) renderCompare();
     if(state.currentView === 'guess'){
-      if(state.guess.finished){
+      if(state.guess.phase === 'result'){
         showGuessResultScreen();
-      } else if(state.guess.pokemonId){
+      } else if(state.guess.phase === 'playing'){
         updateGuessProgressUI();
         els.guessNextBtn.textContent = state.guess.round >= 9 ? t('seeRank') : t('nextRound');
+      } else {
+        showGuessIntro();
       }
     }
     if(state.currentView === 'quiz') renderQuiz();
@@ -584,6 +594,8 @@ function bindEvents(){
   els.guessBtn.addEventListener('click', openGuess);
   els.quizBtn.addEventListener('click', openQuiz);
   els.achievementsBtn.addEventListener('click', openAchievements);
+  els.startQuizBtn.addEventListener('click', startGuessSession);
+  els.guessHeading.addEventListener('click', showGuessIntro);
   els.guessNextBtn.addEventListener('click', advanceGuessRound);
   els.playAgainBtn.addEventListener('click', startGuessSession);
   els.shareResultBtn.addEventListener('click', shareGuessResult);
@@ -842,11 +854,7 @@ function openCompare(){
 function openGuess(){
   location.hash = '#/guess';
   setView('guess');
-  if(state.guess.finished){
-    showGuessResultScreen();
-  } else if(!state.guess.pokemonId){
-    startGuessSession();
-  }
+  showGuessIntro();
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1980,15 +1988,44 @@ function updateGuessProgressUI(){
   updateGuessScore();
 }
 
+// ---- screen switching ----
+function showGuessIntro(){
+  state.guess.phase = 'intro';
+  els.guessPlay.hidden = true;
+  els.guessResultPanel.hidden = true;
+  els.guessIntro.hidden = false;
+  renderGuessRankCards();
+  els.introBest.textContent = state.guessBest > 0 ? t('resultBestScore', state.guessBest) : '';
+}
+
+function showGuessPlayScreen(){
+  els.guessIntro.hidden = true;
+  els.guessResultPanel.hidden = true;
+  els.guessPlay.hidden = false;
+}
+
+function renderGuessRankCards(){
+  els.guessRankGrid.innerHTML = TRAINER_RANKS.map(r=>{
+    const name = t(`rank_${r.key}_title`).replace(/^\S+\s/, '');
+    const range = r.min === r.max ? `${r.min}/10` : `${r.min}\u2013${r.max}/10`;
+    return `
+      <div class="rank-card">
+        <div class="rank-card-emoji">${r.emoji}</div>
+        <div class="rank-card-name">${name}</div>
+        <div class="rank-card-range">${range}</div>
+      </div>`;
+  }).join('');
+}
+
 function startGuessSession(){
+  state.guess.phase = 'playing';
   state.guess.round = 0;
   state.guess.sessionScore = 0;
   state.guess.usedIds = [];
   state.guess.finished = false;
-  els.guessResultPanel.hidden = true;
   els.rankFx.innerHTML = '';
   els.resultCard.classList.remove('celebrate-champion');
-  els.guessPlay.hidden = false;
+  showGuessPlayScreen();
   loadGuessRound();
 }
 
@@ -2079,16 +2116,20 @@ function advanceGuessRound(){
 
 function finishGuessSession(){
   state.guess.finished = true;
+  state.guess.phase = 'result';
   const score = state.guess.sessionScore;
   if(score > state.guessBest){
     state.guessBest = score;
     localStorage.setItem('pokedex_guess_best', String(score));
   }
-  els.guessPlay.hidden = true;
   showGuessResultScreen();
 }
 
 function showGuessResultScreen(){
+  els.guessIntro.hidden = true;
+  els.guessPlay.hidden = true;
+  els.guessResultPanel.hidden = false;
+
   const score = state.guess.sessionScore;
   const accuracy = Math.round((score/10)*100);
   const rank = determineTrainerRank(score);
@@ -2096,7 +2137,7 @@ function showGuessResultScreen(){
   els.rankFx.innerHTML = '';
   els.resultCard.classList.remove('celebrate-champion');
   els.rankEmoji.textContent = rank.emoji;
-  els.rankTitle.textContent = t(`rank_${rank.key}_title`);
+  els.rankTitle.textContent = t(`rank_${rank.key}_title`).replace(/^\S+\s/, '');
   els.rankTitle.className = `rank-badge-title ${rank.css}`;
   els.rankMessage.textContent = t(`rank_${rank.key}_msg`);
   els.resultAccuracy.textContent = `${accuracy}%`;
@@ -2106,7 +2147,6 @@ function showGuessResultScreen(){
   // Reset then animate: score count-up, progress bar fill, badge pop (CSS handles the pop).
   els.resultScoreVal.textContent = '0';
   els.rankProgressFill.style.width = '0%';
-  els.guessResultPanel.hidden = false;
 
   requestAnimationFrame(()=>{
     animateGuessScoreCount(score);
