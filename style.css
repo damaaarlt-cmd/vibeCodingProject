@@ -895,6 +895,9 @@ body.dark .more-item{ color:#fff; }
 .compare-head p, .guess-head p, .quiz-head p, .achievements-head p{ color:#5B6478; font-weight:600; }
 body.dark .compare-head p, body.dark .guess-head p, body.dark .quiz-head p, body.dark .achievements-head p{ color:#B7B2D6; }
 
+.guess-heading-link{ cursor:pointer; transition: opacity .15s, transform .15s; display:inline-block; }
+.guess-heading-link:hover{ opacity:.8; transform: translateY(-1px); }
+
 /* ---------------- compare result ---------------- */
 .compare-result { max-width:720px; margin: 34px auto 0; }
 .compare-top { display:flex; align-items:center; justify-content:space-around; margin-bottom:24px; text-align:center; }
@@ -983,7 +986,25 @@ body.dark .guess-choice{ background:#241F3D; color:#fff; }
 #guessNextBtn{ display:none; }
 #guessNextBtn.show{ display:inline-block; }
 
-/* ---------------- guess result screen (Trainer Rank) ---------------- */
+/* ---------------- guess intro (rank overview before starting) ---------------- */
+.guess-intro{ max-width:900px; margin: 24px auto 0; padding: 0 16px; text-align:center; animation: fade-up .4s ease; }
+.guess-rank-grid{
+  display:grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap:14px; max-width:820px; margin: 0 auto;
+}
+.rank-card{
+  background: var(--card-bg); border-radius: var(--radius-md); padding:20px 12px; text-align:center;
+  box-shadow: 0 10px 22px -14px rgba(45,55,72,.3); border: 1px solid var(--card-border); transition: transform .15s;
+}
+body.dark .rank-card{ background:#241F3D; border-color: rgba(255,255,255,.06); }
+.rank-card:hover{ transform: translateY(-4px); }
+.rank-card-emoji{ font-size:2rem; margin-bottom:8px; }
+.rank-card-name{ font-weight:800; font-size:.86rem; margin-bottom:4px; }
+.rank-card-range{ font-size:.72rem; font-weight:700; color:#9AA3B5; }
+.guess-intro-actions{ margin: 30px 0 12px; }
+.btn-start-quiz{ padding: 15px 36px; font-size:1rem; }
+.guess-intro .result-best{ margin-top:0; }
+
+
 .guess-result{ position:relative; max-width:460px; margin: 20px auto 0; padding: 0 16px; }
 .rank-fx{ position:absolute; inset:-40px -16px auto -16px; height:260px; pointer-events:none; overflow:visible; z-index:0; }
 
