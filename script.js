@@ -187,6 +187,9 @@ const I18N = {
     ach_guess_pro_name:"Silhouette Sleuth", ach_guess_pro_desc:"Correctly guess 10 silhouettes.",
 
     exportPng:"Export PNG", shareCard:"Share",
+    detailBattleBtn:"Battle", detailCompareBtn:"Compare",
+    battlePresetToast:(name)=>`${name} is set as Player 1 — pick an opponent!`,
+    comparePresetToast:(name)=>`${name} is set as Pokémon A — pick another to compare!`,
     generatingCard:"Generating your card…", cardDownloaded:"Card downloaded! 📥",
     cardExportFail:"Couldn't generate the card — try again.",
     shareFallback:"Sharing isn't supported here — downloaded the PNG instead.",
@@ -328,6 +331,9 @@ const I18N = {
     ach_guess_pro_name:"Detektif Siluet", ach_guess_pro_desc:"Tebak 10 siluet dengan benar.",
 
     exportPng:"Ekspor PNG", shareCard:"Bagikan",
+    detailBattleBtn:"Battle", detailCompareBtn:"Bandingkan",
+    battlePresetToast:(name)=>`${name} sudah jadi Player 1 — pilih lawannya!`,
+    comparePresetToast:(name)=>`${name} sudah jadi Pokémon A — pilih satu lagi untuk dibandingkan!`,
     generatingCard:"Membuat kartu…", cardDownloaded:"Kartu berhasil diunduh! 📥",
     cardExportFail:"Gagal membuat kartu — coba lagi.",
     shareFallback:"Berbagi tidak didukung di sini — PNG diunduh sebagai gantinya.",
@@ -918,10 +924,33 @@ function openBattle(){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
+// Jumps to the Battle view from a Pokémon's detail page and locks that
+// Pokémon in as Player 1, so the user only has to pick an opponent.
+function openBattleWithP1(pokemon){
+  openBattle();
+  resetBattle();
+  selectBattlePokemon('p1', pokemon.id);
+  showToast(t('battlePresetToast', capitalize(pokemon.name.replace(/-/g,' '))));
+}
+
 function openCompare(){
   location.hash = '#/compare';
   setView('compare');
   window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Jumps to the Compare view from a Pokémon's detail page and locks that
+// Pokémon in as slot A, so the user only has to pick the second one.
+function openCompareWithA(pokemon){
+  openCompare();
+  state.compare = { a: null, b: null };
+  els.cAPreview.innerHTML = `<div class="picker-placeholder">?</div>`;
+  els.cBPreview.innerHTML = `<div class="picker-placeholder">?</div>`;
+  els.cASearchInput.value = '';
+  els.cBSearchInput.value = '';
+  els.compareResult.hidden = true;
+  selectComparePokemon('a', pokemon.id);
+  showToast(t('comparePresetToast', capitalize(pokemon.name.replace(/-/g,' '))));
 }
 
 function openGuess(){
@@ -1063,6 +1092,10 @@ function renderDetail(pokemon, species, evoChain, typeMult){
         <button class="sprite-chip" id="exportPngBtn">📥 ${t('exportPng')}</button>
         <button class="sprite-chip" id="shareCardBtn">🔗 ${t('shareCard')}</button>
       </div>
+      <div class="dc-export-row">
+        <button class="sprite-chip" id="detailBattleBtn">⚔️ ${t('detailBattleBtn')}</button>
+        <button class="sprite-chip" id="detailCompareBtn">🔍 ${t('detailCompareBtn')}</button>
+      </div>
     </div>
 
     <div class="dc-body">
@@ -1125,6 +1158,9 @@ function renderDetail(pokemon, species, evoChain, typeMult){
   `;
 
   document.getElementById('favBtn').addEventListener('click', ()=> toggleFavorite(pokemon));
+
+  document.getElementById('detailBattleBtn').addEventListener('click', ()=> openBattleWithP1(pokemon));
+  document.getElementById('detailCompareBtn').addEventListener('click', ()=> openCompareWithA(pokemon));
 
   document.querySelectorAll('#spriteSelector .sprite-chip').forEach(chip=>{
     chip.addEventListener('click', ()=>{
