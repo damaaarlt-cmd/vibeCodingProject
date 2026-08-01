@@ -58,6 +58,10 @@ const FUN_FACTS = {
 /* ---------------- I18N ---------------- */
 const I18N = {
   en: {
+    trendingSub: "See which Pokémon are popular right now.",
+    funFactsSub: "Discover interesting trivia about Pokémon.",
+    recentSub: "Pick up right where you left off.",
+    favoritesSub: "Your personal collection of beloved Pokémon.",
     searchPlaceholder:"Search Pikachu, #025, fire...",
     searchBtn:"Search",
     navCatalog:"Catalog", navBattle:"Battle", navFav:"Favorites", navSound:"Toggle sound", navDark:"Toggle dark mode",
@@ -114,9 +118,32 @@ const I18N = {
     cmpTie:"🤝 It's a tie on total base stats!",
 
     guessTitle:"Who's That Pokémon?", guessBtnHome:"🎮 Guess Game", guessSub:"Guess the Pokémon from its silhouette.",
-    nextRound:"Next Silhouette →",
+    nextRound:"Next Silhouette →", seeRank:"See My Rank →",
     guessCorrect:"🎉 Correct! It's ",
     guessWrong:(name)=>`❌ Nope! It was ${name}.`,
+    questionCounter:(n,total)=>`Question ${n} / ${total}`,
+    quizComplete:"Quiz Complete!", scoreLabel:"Score", accuracyLabel:"Accuracy",
+    playAgain:"Play Again", shareResult:"Share Result",
+    resultBestScore:(n)=>`🏆 Best score: ${n} / 10`,
+    rank_youngster_title:"🎒 Youngster",
+    rank_youngster_desc:"A new Trainer beginning their Pokémon journey. Keep exploring and you'll become stronger.",
+    rank_youngster_msg:"Every great Trainer starts somewhere. Keep exploring!",
+    rank_trainer_title:"🧢 Pokémon Trainer",
+    rank_trainer_desc:"You already know the basics. Continue exploring different Pokémon to improve your knowledge.",
+    rank_trainer_msg:"Nice work! Learn a few more species and you'll rank up in no time.",
+    rank_ace_title:"⚔️ Ace Trainer",
+    rank_ace_desc:"Great work! You have solid Pokémon knowledge and are becoming a skilled Trainer.",
+    rank_ace_msg:"You're getting stronger! A little more practice and you'll reach Gym Leader.",
+    rank_gym_title:"🏅 Gym Leader",
+    rank_gym_desc:"Excellent! Your Pokémon knowledge is impressive. Few Trainers can reach this level.",
+    rank_gym_msg:"Excellent! Only a couple more correct answers stand between you and Champion.",
+    rank_champion_title:"👑 Champion",
+    rank_champion_desc:"Outstanding! You are among the best Trainers. Only one step remains.",
+    rank_champion_msg:"Incredible! Only a perfect score separates you from becoming a Pokémon Master.",
+    rank_master_title:"⭐ Pokémon Master",
+    rank_master_desc:"Perfect Score! You truly are a Pokémon Master. Congratulations!",
+    rank_master_msg:"Perfect! Your Pokémon knowledge is legendary.",
+    shareRankText:(rank,score)=>`I ranked ${rank} (${score}/10) on the Who's That Pokémon quiz! Can you beat my score?`,
 
     quizTitle:"Daily Quiz", quizBtnHome:"📅 Daily Quiz",
     quizQuestion:"Who's that Pokémon?",
@@ -153,6 +180,10 @@ const I18N = {
     funFactsTitle:"💡 Pokémon Fun Facts", shuffleFacts:"🔀 Shuffle Facts",
   },
   id: {
+    trendingSub: "Lihat Pokémon yang sedang populer saat ini.",
+    funFactsSub: "Temukan trivia menarik seputar dunia Pokémon.",
+    recentSub: "Lanjutkan pencarian terakhirmu di sini.",
+    favoritesSub: "Koleksi pribadi Pokémon kesayanganmu.",
     searchPlaceholder:"Cari Pikachu, #025, fire...",
     searchBtn:"Cari",
     navCatalog:"Katalog", navBattle:"Battle", navFav:"Favorit", navSound:"Aktif/matikan suara", navDark:"Mode gelap",
@@ -209,9 +240,32 @@ const I18N = {
     cmpTie:"🤝 Seri dalam total statistik dasar!",
 
     guessTitle:"Siapakah Pokémon Ini?", guessBtnHome:"🎮 Tebak Pokémon", guessSub:"Tebak Pokémon dari siluetnya.",
-    nextRound:"Siluet Berikutnya →",
+    nextRound:"Siluet Berikutnya →", seeRank:"Lihat Peringkatku →",
     guessCorrect:"🎉 Benar! Itu adalah ",
     guessWrong:(name)=>`❌ Salah! Itu adalah ${name}.`,
+    questionCounter:(n,total)=>`Soal ${n} / ${total}`,
+    quizComplete:"Kuis Selesai!", scoreLabel:"Skor", accuracyLabel:"Akurasi",
+    playAgain:"Main Lagi", shareResult:"Bagikan Hasil",
+    resultBestScore:(n)=>`🏆 Skor terbaik: ${n} / 10`,
+    rank_youngster_title:"🎒 Youngster",
+    rank_youngster_desc:"Trainer baru yang baru memulai perjalanan Pokémon-nya. Terus jelajahi dan kamu akan makin kuat.",
+    rank_youngster_msg:"Setiap Trainer hebat pasti mulai dari suatu tempat. Terus jelajahi!",
+    rank_trainer_title:"🧢 Pokémon Trainer",
+    rank_trainer_desc:"Kamu sudah paham dasar-dasarnya. Terus jelajahi Pokémon lain untuk menambah wawasanmu.",
+    rank_trainer_msg:"Kerja bagus! Kenali beberapa spesies lagi dan peringkatmu akan naik.",
+    rank_ace_title:"⚔️ Ace Trainer",
+    rank_ace_desc:"Kerja bagus! Pengetahuan Pokémon-mu sudah cukup solid dan kamu semakin terampil.",
+    rank_ace_msg:"Kamu makin kuat! Sedikit lagi latihan dan kamu akan sampai ke Gym Leader.",
+    rank_gym_title:"🏅 Gym Leader",
+    rank_gym_desc:"Luar biasa! Pengetahuan Pokémon-mu mengesankan. Hanya sedikit Trainer yang bisa sampai level ini.",
+    rank_gym_msg:"Mantap! Tinggal beberapa jawaban benar lagi menuju Champion.",
+    rank_champion_title:"👑 Champion",
+    rank_champion_desc:"Hebat sekali! Kamu termasuk Trainer terbaik. Tinggal satu langkah lagi.",
+    rank_champion_msg:"Luar biasa! Tinggal skor sempurna yang memisahkanmu dari gelar Pokémon Master.",
+    rank_master_title:"⭐ Pokémon Master",
+    rank_master_desc:"Skor Sempurna! Kamu benar-benar seorang Pokémon Master. Selamat!",
+    rank_master_msg:"Sempurna! Pengetahuan Pokémon-mu legendaris.",
+    shareRankText:(rank,score)=>`Peringkatku ${rank} (${score}/10) di kuis Siapakah Pokémon Ini! Bisakah kamu mengalahkan skorku?`,
 
     quizTitle:"Kuis Harian", quizBtnHome:"📅 Kuis Harian",
     quizQuestion:"Siapakah Pokémon ini?",
@@ -360,10 +414,26 @@ const els = {
   compareResult: document.getElementById('compareResult'),
 
   guessView: document.getElementById('guessView'),
+  guessPlay: document.getElementById('guessPlay'),
   guessImg: document.getElementById('guessImg'),
   guessChoices: document.getElementById('guessChoices'),
   guessScore: document.getElementById('guessScore'),
+  guessQuestionLabel: document.getElementById('guessQuestionLabel'),
+  guessProgressFill: document.getElementById('guessProgressFill'),
   guessNextBtn: document.getElementById('guessNextBtn'),
+  guessResultPanel: document.getElementById('guessResultPanel'),
+  rankFx: document.getElementById('rankFx'),
+  resultCard: document.getElementById('resultCard'),
+  resultScoreVal: document.getElementById('resultScoreVal'),
+  rankEmoji: document.getElementById('rankEmoji'),
+  rankTitle: document.getElementById('rankTitle'),
+  rankProgressFill: document.getElementById('rankProgressFill'),
+  rankProgressLabel: document.getElementById('rankProgressLabel'),
+  resultAccuracy: document.getElementById('resultAccuracy'),
+  rankMessage: document.getElementById('rankMessage'),
+  playAgainBtn: document.getElementById('playAgainBtn'),
+  shareResultBtn: document.getElementById('shareResultBtn'),
+  resultBest: document.getElementById('resultBest'),
 
   quizView: document.getElementById('quizView'),
   quizDate: document.getElementById('quizDate'),
@@ -409,7 +479,14 @@ const state = {
   strongestCache: null,
   battle: { p1: null, p2: null },
   compare: { a: null, b: null },
-  guess: { pokemonId: null, correctName: null, answered: false },
+  guess: {
+    pokemonId: null, correctName: null, answered: false,
+    round: 0,              // 0-based index of current question (0..9)
+    sessionScore: 0,       // correct answers this session
+    usedIds: [],           // pokemon ids already used this session (avoid repeats)
+    finished: false,       // true once the 10-question session is over
+  },
+  guessBest: parseInt(localStorage.getItem('pokedex_guess_best') || '0', 10),
   progress: JSON.parse(localStorage.getItem('pokedex_progress') || 'null') || {
     viewedIds: [], typesSeen: [], legendaryViewed: [],
     favoritesAdded: 0, battlesPlayed: 0, battlesWon: 0,
@@ -473,7 +550,14 @@ function bindEvents(){
       loadPokemon(state.currentId, true);
     }
     if(state.currentView === 'compare' && state.compare.a && state.compare.b) renderCompare();
-    if(state.currentView === 'guess') updateGuessScore();
+    if(state.currentView === 'guess'){
+      if(state.guess.finished){
+        showGuessResultScreen();
+      } else if(state.guess.pokemonId){
+        updateGuessProgressUI();
+        els.guessNextBtn.textContent = state.guess.round >= 9 ? t('seeRank') : t('nextRound');
+      }
+    }
     if(state.currentView === 'quiz') renderQuiz();
     if(state.currentView === 'achievements') renderAchievements();
     if(state.discoveryId) renderRandomDiscovery(state.discoveryId);
@@ -500,7 +584,9 @@ function bindEvents(){
   els.guessBtn.addEventListener('click', openGuess);
   els.quizBtn.addEventListener('click', openQuiz);
   els.achievementsBtn.addEventListener('click', openAchievements);
-  els.guessNextBtn.addEventListener('click', loadGuessRound);
+  els.guessNextBtn.addEventListener('click', advanceGuessRound);
+  els.playAgainBtn.addEventListener('click', startGuessSession);
+  els.shareResultBtn.addEventListener('click', shareGuessResult);
 
   els.favoritesNavBtn.addEventListener('click', ()=>{
     els.moreDropdown.hidden = true; 
@@ -756,7 +842,11 @@ function openCompare(){
 function openGuess(){
   location.hash = '#/guess';
   setView('guess');
-  if(!state.guess.pokemonId || state.guess.answered) loadGuessRound();
+  if(state.guess.finished){
+    showGuessResultScreen();
+  } else if(!state.guess.pokemonId){
+    startGuessSession();
+  }
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1862,22 +1952,66 @@ function renderCompare(){
   });
 }
 
-/* ---------------- WHO'S THAT POKÉMON? ---------------- */
+/* ---------------- WHO'S THAT POKÉMON? (10-question ranked session) ---------------- */
+
+// Trainer Rank table — score out of 10 → rank tier.
+// Matches the game's official-style Trainer classes so results feel authentic
+// and give players a clear ladder to climb (and compare with friends).
+const TRAINER_RANKS = [
+  { min:0, max:2,  key:'youngster', css:'rank-youngster', emoji:'🎒' },
+  { min:3, max:4,  key:'trainer',   css:'rank-trainer',   emoji:'🧢' },
+  { min:5, max:6,  key:'ace',       css:'rank-ace',       emoji:'⚔️' },
+  { min:7, max:8,  key:'gym',       css:'rank-gym',       emoji:'🏅' },
+  { min:9, max:9,  key:'champion',  css:'rank-champion',  emoji:'👑' },
+  { min:10,max:10, key:'master',    css:'rank-master',    emoji:'⭐' },
+];
+function determineTrainerRank(score){
+  return TRAINER_RANKS.find(r => score >= r.min && score <= r.max) || TRAINER_RANKS[0];
+}
+
 function updateGuessScore(){
-  els.guessScore.textContent = `${state.progress.guessCorrect} / ${state.progress.guessTotal}`;
+  els.guessScore.textContent = `${state.guess.sessionScore} / 10`;
+}
+
+function updateGuessProgressUI(){
+  const n = Math.min(state.guess.round + 1, 10);
+  els.guessQuestionLabel.textContent = t('questionCounter', n, 10);
+  els.guessProgressFill.style.width = `${(state.guess.round/10)*100}%`;
+  updateGuessScore();
+}
+
+function startGuessSession(){
+  state.guess.round = 0;
+  state.guess.sessionScore = 0;
+  state.guess.usedIds = [];
+  state.guess.finished = false;
+  els.guessResultPanel.hidden = true;
+  els.rankFx.innerHTML = '';
+  els.resultCard.classList.remove('celebrate-champion');
+  els.guessPlay.hidden = false;
+  loadGuessRound();
 }
 
 async function loadGuessRound(){
   els.guessImg.classList.remove('revealed');
   els.guessChoices.innerHTML = '';
   els.guessNextBtn.classList.remove('show');
-  const id = Math.floor(Math.random()*1010) + 1;
+  els.guessNextBtn.textContent = state.guess.round >= 9 ? t('seeRank') : t('nextRound');
+  updateGuessProgressUI();
+
+  let id, tries = 0;
+  do{
+    id = Math.floor(Math.random()*1010) + 1;
+    tries++;
+  } while(state.guess.usedIds.includes(id) && tries < 20);
+
   try{
     const res = await fetch(`${API}/pokemon/${id}`);
     const data = await res.json();
     state.guess.pokemonId = id;
     state.guess.correctName = data.name;
     state.guess.answered = false;
+    state.guess.usedIds.push(id);
 
     const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
     els.guessImg.src = sprite;
@@ -1896,7 +2030,6 @@ async function loadGuessRound(){
     els.guessChoices.querySelectorAll('.guess-choice').forEach(btn=>{
       btn.addEventListener('click', ()=> checkGuessAnswer(btn));
     });
-    updateGuessScore();
   }catch(e){
     console.error(e);
     showToast(t('catalogLoadFail'));
@@ -1916,6 +2049,10 @@ function checkGuessAnswer(btn){
   });
   els.guessImg.classList.add('revealed');
 
+  // Session score (drives the Trainer Rank) — separate from the lifetime
+  // achievement counters below, which keep tracking across all sessions.
+  if(correct) state.guess.sessionScore += 1;
+
   state.progress.guessTotal += 1;
   if(correct){
     state.progress.guessCorrect += 1;
@@ -1929,6 +2066,125 @@ function checkGuessAnswer(btn){
   checkAchievements();
   updateGuessScore();
   els.guessNextBtn.classList.add('show');
+}
+
+function advanceGuessRound(){
+  state.guess.round += 1;
+  if(state.guess.round >= 10){
+    finishGuessSession();
+  } else {
+    loadGuessRound();
+  }
+}
+
+function finishGuessSession(){
+  state.guess.finished = true;
+  const score = state.guess.sessionScore;
+  if(score > state.guessBest){
+    state.guessBest = score;
+    localStorage.setItem('pokedex_guess_best', String(score));
+  }
+  els.guessPlay.hidden = true;
+  showGuessResultScreen();
+}
+
+function showGuessResultScreen(){
+  const score = state.guess.sessionScore;
+  const accuracy = Math.round((score/10)*100);
+  const rank = determineTrainerRank(score);
+
+  els.rankFx.innerHTML = '';
+  els.resultCard.classList.remove('celebrate-champion');
+  els.rankEmoji.textContent = rank.emoji;
+  els.rankTitle.textContent = t(`rank_${rank.key}_title`);
+  els.rankTitle.className = `rank-badge-title ${rank.css}`;
+  els.rankMessage.textContent = t(`rank_${rank.key}_msg`);
+  els.resultAccuracy.textContent = `${accuracy}%`;
+  els.rankProgressLabel.textContent = `${score} / 10`;
+  els.resultBest.textContent = t('resultBestScore', state.guessBest);
+
+  // Reset then animate: score count-up, progress bar fill, badge pop (CSS handles the pop).
+  els.resultScoreVal.textContent = '0';
+  els.rankProgressFill.style.width = '0%';
+  els.guessResultPanel.hidden = false;
+
+  requestAnimationFrame(()=>{
+    animateGuessScoreCount(score);
+    setTimeout(()=>{ els.rankProgressFill.style.width = `${(score/10)*100}%`; }, 60);
+    if(score >= 9) spawnRankFx(rank.key);
+  });
+}
+
+function animateGuessScoreCount(target){
+  let cur = 0;
+  const timer = setInterval(()=>{
+    cur += 1;
+    if(cur >= target){ cur = target; clearInterval(timer); }
+    els.resultScoreVal.textContent = cur;
+  }, target > 0 ? 70 : 0);
+}
+
+// Champion (9/10): gold sparkles + soft glow. Pokémon Master (10/10): confetti,
+// rainbow sparkles, and a Poké Ball burst — a bigger moment for a perfect score.
+function spawnRankFx(rankKey){
+  els.rankFx.innerHTML = '';
+  if(rankKey === 'champion'){
+    els.resultCard.classList.add('celebrate-champion');
+    for(let i=0;i<14;i++){
+      const s = document.createElement('div');
+      s.className = 'fx-sparkle';
+      s.textContent = '✨';
+      s.style.left = (10 + Math.random()*80) + '%';
+      s.style.top = (30 + Math.random()*50) + '%';
+      s.style.animationDelay = (Math.random()*0.6) + 's';
+      els.rankFx.appendChild(s);
+    }
+  } else if(rankKey === 'master'){
+    playClick();
+    const colors = ['#FFD93D','#FF4D4D','#6EC6FF','#7ED957','#A78BFA','#FF9D55'];
+    for(let i=0;i<32;i++){
+      const c = document.createElement('div');
+      c.className = 'fx-confetti';
+      c.style.left = (Math.random()*100) + '%';
+      c.style.background = colors[i % colors.length];
+      c.style.animationDelay = (Math.random()*0.5) + 's';
+      c.style.animationDuration = (1.5 + Math.random()*0.8) + 's';
+      els.rankFx.appendChild(c);
+    }
+    for(let i=0;i<16;i++){
+      const s = document.createElement('div');
+      s.className = 'fx-sparkle';
+      s.textContent = i % 2 === 0 ? '✨' : '🌟';
+      s.style.left = (5 + Math.random()*90) + '%';
+      s.style.top = (20 + Math.random()*60) + '%';
+      s.style.animationDelay = (Math.random()*0.8) + 's';
+      els.rankFx.appendChild(s);
+    }
+    const ball = document.createElement('div');
+    ball.className = 'fx-pokeball';
+    els.rankFx.appendChild(ball);
+  }
+}
+
+async function shareGuessResult(){
+  const score = state.guess.sessionScore;
+  const rank = determineTrainerRank(score);
+  const rankName = t(`rank_${rank.key}_title`).replace(/^\S+\s/, ''); // strip leading emoji for the text
+  showToast(t('generatingCard'));
+  try{
+    const canvas = await buildRankExportCanvas(score, rank);
+    canvas.toBlob(async (blob)=>{
+      if(!blob){ showToast(t('cardExportFail')); return; }
+      const file = new File([blob], `pokemon-quiz-rank.png`, { type:'image/png' });
+      if(navigator.canShare && navigator.canShare({ files:[file] })){
+        try{ await navigator.share({ files:[file], title:'Who\'s That Pokémon?', text: t('shareRankText', rankName, score) }); }
+        catch(err){ /* user cancelled the native share sheet */ }
+      } else {
+        downloadCanvasPNG(canvas, `pokemon-quiz-rank.png`);
+        showToast(t('shareFallback'));
+      }
+    }, 'image/png');
+  }catch(e){ console.error(e); showToast(t('cardExportFail')); }
 }
 
 /* ---------------- DAILY QUIZ ---------------- */
@@ -2171,6 +2427,113 @@ async function buildExportCanvas(pokemon, species){
   ctx.fillText('Generated with Pokédex · pokeapi.co', W/2, H-28);
 
   return canvas;
+}
+
+const RANK_CARD_COLORS = {
+  youngster: ['#8FA0C0','#5B6A8F'],
+  trainer:   ['#6EC6FF','#3B82F6'],
+  ace:       ['#A78BFA','#6D28D9'],
+  gym:       ['#FFD93D','#FFB020'],
+  champion:  ['#FF9D55','#FF4D4D'],
+  master:    ['#FFD93D','#FF4D4D','#A78BFA','#6EC6FF'],
+};
+
+async function buildRankExportCanvas(score, rank){
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  const canvas = els.exportCanvas;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const colors = RANK_CARD_COLORS[rank.key] || ['#FFD93D','#FF4D4D'];
+
+  ctx.clearRect(0,0,W,H);
+  roundRectPath(ctx,0,0,W,H,36);
+  const bgGrad = ctx.createLinearGradient(0,0,W,H);
+  if(colors.length > 2){
+    colors.forEach((c,i)=> bgGrad.addColorStop(i/(colors.length-1), c));
+  } else {
+    bgGrad.addColorStop(0, colors[0]);
+    bgGrad.addColorStop(1, colors[1]);
+  }
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  // decorative Poké Ball ring motif, echoing the main card exporter's style
+  ctx.save();
+  ctx.globalAlpha = 0.10;
+  for(let i=0;i<4;i++){
+    ctx.beginPath();
+    ctx.arc(W-90, 130, 50+i*46, 0, Math.PI*2);
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 7;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.fillStyle = 'rgba(255,255,255,0.92)';
+  ctx.font = '700 26px Nunito, Arial, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('🎮 Pokémon Encyclopedia', 40, 58);
+
+  const dateStr = new Date().toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { year:'numeric', month:'long', day:'numeric' });
+  ctx.font = '600 18px Nunito, Arial, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(dateStr, W-40, 58);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '700 22px Nunito, Arial, sans-serif';
+  ctx.fillText('Who\'s That Pokémon? — Quiz Result', W/2, 130);
+
+  ctx.fillStyle = '#fff';
+  ctx.font = '800 130px Fredoka, Arial, sans-serif';
+  ctx.fillText(`${score}/10`, W/2, 300);
+
+  ctx.font = '700 60px Fredoka, Arial, sans-serif';
+  ctx.fillText(rank.emoji, W/2, 400);
+
+  const rankTitleClean = t(`rank_${rank.key}_title`).replace(/^\S+\s/, '');
+  ctx.font = '800 44px Fredoka, Arial, sans-serif';
+  ctx.fillText(rankTitleClean, W/2, 460);
+
+  const accuracy = Math.round((score/10)*100);
+  ctx.font = '700 24px Nunito, Arial, sans-serif';
+  ctx.globalAlpha = 0.92;
+  ctx.fillText(`${t('accuracyLabel')}: ${accuracy}%`, W/2, 505);
+  ctx.globalAlpha = 1;
+
+  // motivational message panel
+  const panelX = 60, panelY = 560, panelW = W-120, panelH = 230;
+  roundRectPath(ctx, panelX, panelY, panelW, panelH, 26);
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.fill();
+
+  ctx.fillStyle = '#2D3748';
+  ctx.font = '700 22px Nunito, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  wrapCanvasText(ctx, t(`rank_${rank.key}_msg`), W/2, panelY+70, panelW-80, 32);
+
+  ctx.fillStyle = 'rgba(255,255,255,0.85)';
+  ctx.font = '600 16px Nunito, Arial, sans-serif';
+  ctx.fillText('Generated with Pokédex · pokeapi.co', W/2, H-28);
+
+  return canvas;
+}
+
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '';
+  let curY = y;
+  for(let n=0; n<words.length; n++){
+    const testLine = line + words[n] + ' ';
+    if(ctx.measureText(testLine).width > maxWidth && n > 0){
+      ctx.fillText(line.trim(), x, curY);
+      line = words[n] + ' ';
+      curY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, curY);
 }
 
 function downloadCanvasPNG(canvas, filename){
