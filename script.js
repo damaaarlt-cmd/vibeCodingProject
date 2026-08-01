@@ -14,6 +14,47 @@ const TYPE_EMOJI = {
 
 const TRENDING_IDS = [25, 6, 9, 3, 150, 143, 94, 130, 448, 445, 282, 384, 133, 700, 658, 39];
 
+const REGIONS = [
+  { key:'kanto',  name:'Kanto',  gen:'I',    range:[1,151],    repId:6 },
+  { key:'johto',  name:'Johto',  gen:'II',   range:[152,251],  repId:157 },
+  { key:'hoenn',  name:'Hoenn',  gen:'III',  range:[252,386],  repId:257 },
+  { key:'sinnoh', name:'Sinnoh', gen:'IV',   range:[387,493],  repId:392 },
+  { key:'unova',  name:'Unova',  gen:'V',    range:[494,649],  repId:497 },
+  { key:'kalos',  name:'Kalos',  gen:'VI',   range:[650,721],  repId:655 },
+  { key:'alola',  name:'Alola',  gen:'VII',  range:[722,809],  repId:725 },
+  { key:'galar',  name:'Galar',  gen:'VIII', range:[810,905],  repId:813 },
+  { key:'paldea', name:'Paldea', gen:'IX',   range:[906,1025], repId:909 },
+];
+
+const STRONGEST_IDS = [150, 249, 250, 382, 383, 384, 483, 484, 487, 493, 643, 644, 646, 716, 717, 890];
+
+const FUN_FACTS = {
+  en: [
+    "Pikachu's design was inspired by a mix of squirrels and rabbits.",
+    "Magikarp is intentionally one of the weakest Pokémon — until it evolves into the powerful Gyarados.",
+    "Ditto can transform into almost any Pokémon it sees, copying its stats and moves.",
+    "Shuckle has the highest Defense and Special Defense of any Pokémon, but very low HP and Attack.",
+    "Unown has 28 forms — one for every letter of the alphabet, plus ! and ?.",
+    "Arceus is known in Pokémon lore as 'The Original One,' said to have shaped the Pokémon universe.",
+    "The name 'Pokémon' is a shortening of the Japanese 'Pocket Monsters.'",
+    "Eternatus towers over almost every other Pokémon in its base form.",
+    "Wobbuffet's only real offensive moves are Counter and Mirror Coat, which reflect damage back at attackers.",
+    "Vivillon has region-specific wing patterns depending on where in the real world you catch it.",
+  ],
+  id: [
+    "Desain Pikachu terinspirasi dari campuran tupai dan kelinci.",
+    "Magikarp sengaja dibuat sangat lemah — sampai berevolusi menjadi Gyarados yang kuat.",
+    "Ditto bisa berubah menjadi hampir semua Pokémon yang ia lihat, meniru statistik dan gerakannya.",
+    "Shuckle punya Defense dan Special Defense tertinggi di antara semua Pokémon, tapi HP dan Attack-nya sangat rendah.",
+    "Unown punya 28 bentuk — satu untuk setiap huruf alfabet, plus tanda ! dan ?.",
+    "Arceus dikenal dalam lore Pokémon sebagai 'The Original One', yang disebut membentuk alam semesta Pokémon.",
+    "Nama 'Pokémon' adalah singkatan dari bahasa Jepang 'Pocket Monsters'.",
+    "Eternatus menjulang di atas hampir semua Pokémon lain dalam bentuk dasarnya.",
+    "Satu-satunya gerakan menyerang Wobbuffet adalah Counter dan Mirror Coat, yang memantulkan damage ke penyerang.",
+    "Beberapa Pokémon, seperti Vivillon, punya pola sayap berbeda tergantung wilayah tempat kamu menangkapnya di dunia nyata.",
+  ],
+};
+
 /* ---------------- I18N ---------------- */
 const I18N = {
   en: {
@@ -104,6 +145,12 @@ const I18N = {
     cardExportFail:"Couldn't generate the card — try again.",
     shareFallback:"Sharing isn't supported here — downloaded the PNG instead.",
     shareText:(name)=>`Check out ${name} on my Pokédex app!`,
+    randomDiscoveryTitle:"🔀 Random Discovery", randomDiscoverySub:"A fresh Pokémon every time you shuffle.",
+    shuffle:"Shuffle", viewDetails:"View Details",
+    exploreRegionTitle:"🗺️ Explore by Region", exploreRegionSub:"Jump straight into a generation's Pokédex.",
+    showingRegion:"Showing region", clearFilter:"Clear",
+    topStrongestTitle:"💪 Top Strongest", topStrongestSub:"Ranked by total base stats.",
+    funFactsTitle:"💡 Pokémon Fun Facts", shuffleFacts:"🔀 Shuffle Facts",
   },
   id: {
     searchPlaceholder:"Cari Pikachu, #025, fire...",
@@ -193,6 +240,12 @@ const I18N = {
     cardExportFail:"Gagal membuat kartu — coba lagi.",
     shareFallback:"Berbagi tidak didukung di sini — PNG diunduh sebagai gantinya.",
     shareText:(name)=>`Lihat ${name} di aplikasi Pokédex-ku!`,
+    randomDiscoveryTitle:"🔀 Penemuan Acak", randomDiscoverySub:"Pokémon baru setiap kali kamu kocok ulang.",
+    shuffle:"Kocok Ulang", viewDetails:"Lihat Detail",
+    exploreRegionTitle:"🗺️ Jelajahi Wilayah", exploreRegionSub:"Langsung masuk ke Pokédex satu generasi.",
+    showingRegion:"Menampilkan wilayah", clearFilter:"Hapus",
+    topStrongestTitle:"💪 Terkuat", topStrongestSub:"Diurutkan berdasarkan total statistik dasar.",
+    funFactsTitle:"💡 Fakta Menarik Pokémon", shuffleFacts:"🔀 Kocok Fakta",
   }
 };
 
@@ -327,11 +380,21 @@ const els = {
   sparkles: document.getElementById('sparkles'),
   floatingBalls: document.getElementById('floatingBalls'),
   toast: document.getElementById('toast'),
+  homeExtras: document.getElementById('homeExtras'),
+  discoveryCard: document.getElementById('discoveryCard'),
+  regionGrid: document.getElementById('regionGrid'),
+  catalogRegionBanner: document.getElementById('catalogRegionBanner'),
+  catalogRegionText: document.getElementById('catalogRegionText'),
+  catalogRegionClear: document.getElementById('catalogRegionClear'),
+  strongestList: document.getElementById('strongestList'),
+  funFactsGrid: document.getElementById('funFactsGrid'),
+  shuffleFactsBtn: document.getElementById('shuffleFactsBtn'),
 };
 
 /* ---------------- STATE ---------------- */
 const state = {
   allNames: [],
+  discoveryId: null,
   namesLoaded: false,
   favorites: JSON.parse(localStorage.getItem('pokedex_favorites') || '[]'),
   recent: JSON.parse(localStorage.getItem('pokedex_recent') || '[]'),
@@ -341,7 +404,9 @@ const state = {
   currentId: null,
   lastRetry: null,
   currentView: 'home',
-  catalog: { offset: 0, limit: 40, filterType: null, typeListCache: {}, endReached: false },
+  catalog: { offset: 0, limit: 40, filterType: null, filterRegion: null, regionIdsCache: {}, typeListCache: {}, endReached: false },
+  nameById: {},
+  strongestCache: null,
   battle: { p1: null, p2: null },
   compare: { a: null, b: null },
   guess: { pokemonId: null, correctName: null, answered: false },
@@ -365,6 +430,10 @@ function init(){
   renderTrending();
   renderRecent();
   renderFavorites();
+  renderRandomDiscovery();
+  renderRegionGrid();
+  renderTopStrongest();
+  renderFunFacts();
   renderCatalogFilters();
   loadNameIndex();
   bindEvents();
@@ -398,6 +467,8 @@ function bindEvents(){
     renderRecent();
     renderFavorites();
     renderCatalogFilters();
+    updateCatalogRegionBanner();
+    renderFunFacts();
     if(state.currentId && state.currentView === 'detail'){
       loadPokemon(state.currentId, true);
     }
@@ -405,11 +476,12 @@ function bindEvents(){
     if(state.currentView === 'guess') updateGuessScore();
     if(state.currentView === 'quiz') renderQuiz();
     if(state.currentView === 'achievements') renderAchievements();
+    if(state.discoveryId) renderRandomDiscovery(state.discoveryId);
   });
 
   els.brandHome.addEventListener('click', (e)=>{ e.preventDefault(); goHome(); });
   els.catalogNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openCatalog(); });
-  els.catalogBtn.addEventListener('click', openCatalog);
+  els.catalogBtn.addEventListener('click', ()=> openCatalog());
   els.battleNavBtn.addEventListener('click', ()=>{ els.moreDropdown.hidden = true; openBattle(); });
   els.battleBtn.addEventListener('click', openBattle);
 
@@ -461,6 +533,12 @@ function bindEvents(){
   els.nextBtn.addEventListener('click', ()=>{ if(state.currentId) loadPokemon(state.currentId + 1); });
 
   els.loadMoreBtn.addEventListener('click', ()=> loadCatalogBatch(false));
+  els.catalogRegionClear.addEventListener('click', ()=>{
+    state.catalog.filterRegion = null;
+    updateCatalogRegionBanner();
+    loadCatalogBatch(true);
+  });
+  els.shuffleFactsBtn.addEventListener('click', renderFunFacts);
 
   els.fightBtn.addEventListener('click', runBattle);
   els.battleResetBtn.addEventListener('click', resetBattle);
@@ -551,6 +629,8 @@ async function loadNameIndex(){
       const id = idFromUrl(p.url);
       return { name: p.name, id };
     });
+    state.nameById = {};
+    state.allNames.forEach(p=>{ if(!(p.id in state.nameById)) state.nameById[p.id] = p.name; });
     state.namesLoaded = true;
   }catch(e){
     console.warn('Could not load name index for autocomplete', e);
@@ -644,6 +724,7 @@ function setView(view){
   Object.entries(map).forEach(([key, el])=>{ if(el) el.hidden = key !== view; });
   els.railsSection.hidden = !(view === 'home' || view === 'detail');
   state.currentView = view;
+  if(els.homeExtras) els.homeExtras.hidden = view !== 'home';
 }
 
 function goHome(){
@@ -652,10 +733,11 @@ function goHome(){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function openCatalog(){
+function openCatalog(forceReset){
   location.hash = '#/catalog';
   setView('catalog');
-  if(els.catalogGrid.children.length === 0) loadCatalogBatch(true);
+  updateCatalogRegionBanner();
+  if(forceReset || els.catalogGrid.children.length === 0) loadCatalogBatch(true);
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -1151,9 +1233,21 @@ function renderCatalogFilters(){
       els.catalogFilters.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
       chip.classList.add('active');
       state.catalog.filterType = chip.dataset.type || null;
+      state.catalog.filterRegion = null;
+      updateCatalogRegionBanner();
       loadCatalogBatch(true);
     });
   });
+}
+
+function updateCatalogRegionBanner(){
+  if(state.catalog.filterRegion){
+    els.catalogRegionBanner.hidden = false;
+    const [start,end] = state.catalog.filterRegion.range;
+    els.catalogRegionText.textContent = `${t('showingRegion')}: ${state.catalog.filterRegion.name} (#${start}–${end})`;
+  } else {
+    els.catalogRegionBanner.hidden = true;
+  }
 }
 
 async function loadCatalogBatch(reset){
@@ -1168,7 +1262,19 @@ async function loadCatalogBatch(reset){
   els.loadMoreBtn.disabled = true;
 
   try{
-    if(state.catalog.filterType){
+    if(state.catalog.filterRegion){
+      const region = state.catalog.filterRegion;
+      let ids = state.catalog.regionIdsCache[region.key];
+      if(!ids){
+        ids = [];
+        for(let id=region.range[0]; id<=region.range[1]; id++) ids.push(id);
+        state.catalog.regionIdsCache[region.key] = ids;
+      }
+      const slice = ids.slice(state.catalog.offset, state.catalog.offset + state.catalog.limit);
+      slice.forEach((id,i)=> appendCatalogCard(id, state.nameById[id] || ('pokemon-'+id), i));
+      state.catalog.offset += state.catalog.limit;
+      state.catalog.endReached = state.catalog.offset >= ids.length;
+    } else if(state.catalog.filterType){
       let list = state.catalog.typeListCache[state.catalog.filterType];
       if(!list){
         const res = await fetch(`${API}/type/${state.catalog.filterType}`);
@@ -1245,6 +1351,121 @@ async function openTypeModal(type){
   }
 }
 function closeTypeModal(){ els.typeModalOverlay.hidden = true; }
+
+/* ---------------- LANDING PAGE: RANDOM DISCOVERY ---------------- */
+async function renderRandomDiscovery(forceId){
+  const container = els.discoveryCard;
+  container.innerHTML = `<div class="discovery-loading"><div class="pokeball-spinner small"><div class="pb-inner"></div></div></div>`;
+  const id = forceId || (Math.floor(Math.random()*1010) + 1);
+  state.discoveryId = id;
+  try{
+    const [pRes, sRes] = await Promise.all([
+      fetch(`${API}/pokemon/${id}`),
+      fetch(`${API}/pokemon-species/${id}`),
+    ]);
+    const data = await pRes.json();
+    const species = await sRes.json();
+    if(state.discoveryId !== id) return; // a newer shuffle superseded this one
+
+    const flavorRaw = (species.flavor_text_entries.find(f=>f.language.name==='en') || {}).flavor_text || '';
+    const flavor = flavorRaw.replace(/\f|\n/g,' ').trim();
+    const flavorShort = flavor.length > 140 ? flavor.slice(0,140).trim()+'…' : flavor;
+    const primaryType = data.types[0].type.name;
+    const gradient = `linear-gradient(135deg, var(--t-${primaryType}), var(--t-${primaryType}-2))`;
+    // Memanggil fungsi pickIdleSprite untuk mengutamakan versi animasi (GIF)
+    const sprite = pickIdleSprite(data);
+
+    container.innerHTML = `
+      <div class="discovery-inner" style="background:${gradient}">
+        <img src="${sprite}" alt="${data.name}" class="discovery-art" />
+        <div class="discovery-info">
+          <div class="discovery-num">#${String(data.id).padStart(3,'0')}</div>
+          <div class="discovery-name">${data.name.replace(/-/g,' ')}</div>
+          <div class="discovery-types">${data.types.map(ty=>typeBadge(ty.type.name)).join('')}</div>
+          <p class="discovery-flavor">${escapeHtml(flavorShort)}</p>
+          <div class="discovery-actions">
+            <button class="btn btn-soft" id="discoveryShuffleBtn">🔀 ${t('shuffle')}</button>
+            <button class="btn btn-primary" id="discoveryViewBtn">${t('viewDetails')} →</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('discoveryShuffleBtn').addEventListener('click', ()=>{ playThrow(); renderRandomDiscovery(); });
+    document.getElementById('discoveryViewBtn').addEventListener('click', ()=> loadPokemon(data.id));
+  }catch(e){
+    console.error(e);
+    container.innerHTML = `<p class="rail-empty">${t('catalogLoadFail')}</p>`;
+  }
+}
+
+/* ---------------- LANDING PAGE: EXPLORE BY REGION ---------------- */
+function renderRegionGrid(){
+  els.regionGrid.innerHTML = REGIONS.map(r=>`
+    <button class="region-card" data-key="${r.key}">
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${r.repId}.png" alt="${r.name}" loading="lazy" />
+      <div class="region-name">${r.name}</div>
+      <div class="region-gen">Gen ${r.gen} · #${r.range[0]}–${r.range[1]}</div>
+    </button>
+  `).join('');
+  els.regionGrid.querySelectorAll('.region-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const region = REGIONS.find(r=>r.key === card.dataset.key);
+      state.catalog.filterType = null;
+      state.catalog.filterRegion = region;
+      renderCatalogFilters();
+      openCatalog(true);
+    });
+  });
+}
+
+/* ---------------- LANDING PAGE: TOP STRONGEST ---------------- */
+async function renderTopStrongest(){
+  if(state.strongestCache){ paintStrongest(state.strongestCache); return; }
+  els.strongestList.innerHTML = `<div class="dots"><span></span><span></span><span></span></div>`;
+  try{
+    const results = await Promise.all(STRONGEST_IDS.map(id => fetch(`${API}/pokemon/${id}`).then(r=>r.json())));
+    const withBst = results.map(p=>({ p, bst: p.stats.reduce((s,x)=> s+x.base_stat, 0) }));
+    withBst.sort((a,b)=> b.bst - a.bst);
+    state.strongestCache = withBst.slice(0,10);
+    paintStrongest(state.strongestCache);
+  }catch(e){
+    console.error(e);
+    els.strongestList.innerHTML = `<p class="rail-empty">${t('catalogLoadFail')}</p>`;
+  }
+}
+
+function paintStrongest(list){
+  els.strongestList.innerHTML = list.map((entry,i)=>{
+    const p = entry.p;
+    const sprite = (p.sprites.other && p.sprites.other['official-artwork'].front_default) || p.sprites.front_default;
+    return `
+      <div class="strongest-row" data-id="${p.id}">
+        <div class="strongest-rank">#${i+1}</div>
+        <img src="${sprite}" alt="${p.name}" loading="lazy" />
+        <div class="strongest-info">
+          <div class="strongest-name">${p.name.replace(/-/g,' ')}</div>
+          <div class="strongest-types">${p.types.map(ty=>typeBadge(ty.type.name)).join('')}</div>
+        </div>
+        <div class="strongest-bst">${entry.bst}<span>BST</span></div>
+      </div>
+    `;
+  }).join('');
+  els.strongestList.querySelectorAll('.strongest-row').forEach(row=>{
+    row.addEventListener('click', (e)=>{
+      if(e.target.closest('.type-badge')) return;
+      loadPokemon(row.dataset.id);
+    });
+  });
+}
+
+/* ---------------- LANDING PAGE: FUN FACTS ---------------- */
+function renderFunFacts(){
+  const facts = FUN_FACTS[state.lang] || FUN_FACTS.en;
+  const picked = [...facts].sort(()=> Math.random()-0.5).slice(0,3);
+  els.funFactsGrid.innerHTML = picked.map(f=>`
+    <div class="fun-fact-card">💡<p>${escapeHtml(f)}</p></div>
+  `).join('');
+}
 
 /* ---------------- BATTLE ---------------- */
 async function selectBattlePokemon(key, nameOrId){
