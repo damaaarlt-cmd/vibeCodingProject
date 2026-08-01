@@ -102,12 +102,14 @@
     <!-- 2. Popular Pokémon -->
     <div class="rail" id="trendingRail">
       <h2 class="rail-title" data-i18n="trending">✨ Trending Pokémon</h2>
+      <p class="feature-sub" data-i18n="trendingSub">See which Pokémon are popular right now.</p>
       <div class="rail-track" id="trendingTrack"></div>
     </div>
 
     <!-- 3. Random Discovery -->
     <div class="feature-block" id="randomDiscoveryBlock">
       <h2 class="rail-title" data-i18n="randomDiscoveryTitle">🔀 Random Discovery</h2>
+      <p class="feature-sub" data-i18n="randomDiscoverySub">A fresh Pokémon every time you shuffle.</p>
       <div class="discovery-card" id="discoveryCard"></div>
     </div>
 
@@ -128,6 +130,7 @@
     <!-- 6. Pokémon Fun Facts -->
     <div class="feature-block" id="funFactsBlock">
       <h2 class="rail-title" data-i18n="funFactsTitle">💡 Pokémon Fun Facts</h2>
+      <p class="feature-sub" data-i18n="funFactsSub">Discover interesting trivia about Pokémon.</p>
       <div class="fun-facts-grid" id="funFactsGrid"></div>
       <div style="text-align:center; margin-top:16px;">
         <button class="btn btn-soft" id="shuffleFactsBtn" data-i18n="shuffleFacts">🔀 Shuffle Facts</button>
@@ -137,12 +140,14 @@
     <!-- 7. Recently Viewed -->
     <div class="rail" id="recentRail">
       <h2 class="rail-title" data-i18n="recent">🕑 Recently Viewed</h2>
+      <p class="feature-sub" data-i18n="recentSub">Pick up right where you left off.</p>
       <div class="rail-track" id="recentTrack"><p class="rail-empty" data-i18n="recentEmpty">Pokémon you view will show up here.</p></div>
     </div>
 
     <!-- 8. Favorite Pokémon -->
     <div class="rail" id="favRail">
       <h2 class="rail-title" data-i18n="favorites">❤️ Favorites</h2>
+      <p class="feature-sub" data-i18n="favoritesSub">Your personal collection of beloved Pokémon.</p>
       <div class="rail-track" id="favTrack"><p class="rail-empty" data-i18n="favEmpty">Tap the heart on any Pokémon to save it here.</p></div>
     </div>
 
@@ -291,11 +296,54 @@
     <div class="guess-head">
       <h1>🎮 <span data-i18n="guessTitle">Who's That Pokémon?</span></h1>
       <p data-i18n="guessSub">Guess the Pokémon from its silhouette.</p>
-      <div class="guess-score" id="guessScore">0 / 0</div>
     </div>
-    <div class="guess-stage"><img class="guess-silhouette" id="guessImg" alt="Mystery Pokémon" /></div>
-    <div class="guess-choices" id="guessChoices"></div>
-    <div class="guess-actions"><button class="btn btn-primary" id="guessNextBtn" data-i18n="nextRound">Next Silhouette →</button></div>
+
+    <!-- ---- PLAY SCREEN (10 questions) ---- -->
+    <div class="guess-play" id="guessPlay">
+      <div class="guess-progress-wrap">
+        <div class="guess-progress-info">
+          <span class="guess-qcounter" id="guessQuestionLabel">Question 1 / 10</span> <!-- text set dynamically in JS via t('questionCounter', n, total) -->
+          <span class="guess-score" id="guessScore">0 / 10</span>
+        </div>
+        <div class="guess-progress-track"><div class="guess-progress-fill" id="guessProgressFill"></div></div>
+      </div>
+      <div class="guess-stage"><img class="guess-silhouette" id="guessImg" alt="Mystery Pokémon" /></div>
+      <div class="guess-choices" id="guessChoices"></div>
+      <div class="guess-actions"><button class="btn btn-primary" id="guessNextBtn">Next Silhouette →</button></div>
+    </div>
+
+    <!-- ---- RESULT SCREEN (rank reveal) ---- -->
+    <div class="guess-result" id="guessResultPanel" hidden>
+      <div class="rank-fx" id="rankFx" aria-hidden="true"></div>
+      <div class="result-card" id="resultCard">
+        <p class="result-eyebrow" data-i18n="quizComplete">Quiz Complete!</p>
+
+        <p class="result-label" data-i18n="scoreLabel">Score</p>
+        <div class="result-score-big"><span id="resultScoreVal">0</span> / 10</div>
+
+        <div class="rank-badge-wrap">
+          <div class="rank-badge-emoji" id="rankEmoji">🎒</div>
+          <div class="rank-badge-title" id="rankTitle">Youngster</div>
+        </div>
+
+        <div class="rank-progress-wrap">
+          <div class="rank-progress-track"><div class="rank-progress-fill" id="rankProgressFill"></div></div>
+          <div class="rank-progress-label" id="rankProgressLabel">0 / 10</div>
+        </div>
+
+        <p class="result-label" data-i18n="accuracyLabel">Accuracy</p>
+        <div class="result-accuracy" id="resultAccuracy">0%</div>
+
+        <p class="rank-message" id="rankMessage"></p>
+
+        <div class="result-actions">
+          <button class="btn btn-primary" id="playAgainBtn">🔁 <span data-i18n="playAgain">Play Again</span></button>
+          <button class="btn btn-soft" id="shareResultBtn">📤 <span data-i18n="shareResult">Share Result</span></button>
+        </div>
+
+        <p class="result-best" id="resultBest"></p>
+      </div>
+    </div>
   </section>
 
   <!-- ============ DAILY QUIZ VIEW ============ -->
