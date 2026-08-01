@@ -1071,6 +1071,104 @@ body.dark .badge-progress-track{ background: rgba(255,255,255,.08); }
   .quiz-choices{ grid-template-columns: 1fr 1fr; }
   .more-dropdown{ right:-40px; }
 }
+
+/* ======================================================
+   NEW: Random Discovery
+   ====================================================== */
+
+.home-extras{ display:flex; flex-direction:column; gap:40px; margin-top: 8px; }
+.feature-block{ animation: card-in .5s ease backwards; }
+.feature-sub{ color:#9AA3B5; font-weight:600; font-size:.85rem; margin: -8px 0 16px 4px; }
+body.dark .feature-sub{ color:#8A84B0; }
+
+.discovery-card{ min-height: 220px; }
+.discovery-loading{ display:flex; align-items:center; justify-content:center; min-height:220px; }
+.pokeball-spinner.small{ width:44px; height:44px; }
+.discovery-inner{
+  border-radius: var(--radius-lg); padding: 28px 26px; display:flex; align-items:center; gap:26px;
+  box-shadow: var(--shadow-soft); color:#fff; flex-wrap:wrap;
+}
+.discovery-art { 
+  width: 150px; 
+  height: 150px; 
+  flex: none; 
+  filter: drop-shadow(0 14px 14px rgba(0,0,0,.25)); 
+  animation: art-in .5s cubic-bezier(.34,1.56,.64,1); 
+  
+  /* Tambahan agar animasi GIF tidak terpotong dan pixelnya tetap tajam */
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.discovery-info{ flex:1; min-width:220px; }
+.discovery-num{ font-weight:800; opacity:.85; font-size:.85rem; letter-spacing:.5px; }
+.discovery-name{ font-family: var(--font-display); font-size:1.6rem; text-transform:capitalize; margin: 2px 0 8px; }
+.discovery-types{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+.discovery-flavor{ opacity:.92; font-weight:600; font-size:.85rem; max-width:460px; margin: 0 0 16px; line-height:1.5; }
+.discovery-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+.discovery-actions .btn{ padding: 11px 20px; font-size:.82rem; }
+.discovery-actions .btn-soft{ background: rgba(255,255,255,.25); color:#fff; box-shadow:none; }
+.discovery-actions .btn-soft:hover{ background: rgba(255,255,255,.38); }
+.discovery-actions .btn-primary{ background:#fff; color: var(--ink); box-shadow:none; }
+
+/* ---------------- explore by region ---------------- */
+.region-grid{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); gap:16px;
+}
+.region-card{
+  border:none; background: var(--card-bg); border-radius: var(--radius-md); padding:16px 12px; text-align:center;
+  box-shadow: 0 12px 26px -16px rgba(45,55,72,.3); border: 1px solid var(--card-border);
+  transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; cursor:pointer;
+}
+body.dark .region-card{ background:#241F3D; border-color: rgba(255,255,255,.06); }
+.region-card:hover{ transform: translateY(-6px) scale(1.03); box-shadow: 0 18px 34px -14px rgba(45,55,72,.35); }
+.region-card img{ width:76px; height:76px; margin:0 auto 8px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.15)); }
+.region-name{ font-weight:800; font-family: var(--font-display); font-size:1rem; }
+.region-gen{ font-size:.7rem; color:#9AA3B5; font-weight:700; margin-top:2px; }
+
+.catalog-region-banner{
+  display:inline-flex; align-items:center; gap:10px; margin-top:16px; background: rgba(255,217,61,.18);
+  padding:8px 16px; border-radius:999px; font-weight:800; font-size:.8rem;
+}
+body.dark .catalog-region-banner{ background: rgba(255,217,61,.12); }
+.catalog-region-banner .filter-chip{ padding:5px 12px; font-size:.7rem; }
+
+/* ---------------- top strongest ---------------- */
+.strongest-list{ display:flex; flex-direction:column; gap:10px; max-width:720px; margin:0 auto; }
+.strongest-row{
+  display:flex; align-items:center; gap:16px; background: var(--card-bg); border-radius: var(--radius-md);
+  padding: 10px 18px; box-shadow: 0 8px 18px -12px rgba(45,55,72,.28); cursor:pointer;
+  transition: transform .15s ease; border: 1px solid var(--card-border);
+}
+body.dark .strongest-row{ background:#241F3D; border-color: rgba(255,255,255,.06); }
+.strongest-row:hover{ transform: translateX(4px); }
+.strongest-rank{ font-family: var(--font-display); font-weight:700; font-size:1.1rem; color: var(--purple); width:34px; flex:none; text-align:center; }
+.strongest-row:nth-child(1) .strongest-rank{ color: var(--yellow); }
+.strongest-row:nth-child(2) .strongest-rank{ color:#B0B0B0; }
+.strongest-row:nth-child(3) .strongest-rank{ color:#C9812F; }
+.strongest-row img{ width:54px; height:54px; flex:none; }
+.strongest-info{ flex:1; min-width:0; }
+.strongest-name{ font-weight:800; text-transform:capitalize; margin-bottom:4px; }
+.strongest-types{ display:flex; gap:6px; flex-wrap:wrap; }
+.strongest-bst{ font-family: var(--font-display); font-weight:700; font-size:1.2rem; text-align:right; flex:none; color: var(--red); }
+.strongest-bst span{ display:block; font-family: var(--font-body); font-size:.6rem; font-weight:800; color:#9AA3B5; letter-spacing:.5px; }
+
+/* ---------------- fun facts ---------------- */
+.fun-facts-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:16px; }
+.fun-fact-card{
+  background: var(--card-bg); border-radius: var(--radius-md); padding:18px; box-shadow: 0 10px 22px -14px rgba(45,55,72,.3);
+  display:flex; gap:10px; align-items:flex-start; font-weight:600; font-size:.85rem; line-height:1.5; border: 1px solid var(--card-border);
+  animation: card-in .4s ease backwards;
+}
+body.dark .fun-fact-card{ background:#241F3D; border-color: rgba(255,255,255,.06); }
+.fun-fact-card p{ margin:0; }
+
+@media (max-width: 600px){
+  .discovery-inner{ flex-direction:column; text-align:center; }
+  .discovery-actions{ justify-content:center; }
+  .strongest-row{ flex-wrap:wrap; }
+  .discovery-types { justify-content: center; }
+}
+
 /* =========================================
    📱 MOBILE RESPONSIVE FIXES (Tampilan HP)
    ========================================= */
