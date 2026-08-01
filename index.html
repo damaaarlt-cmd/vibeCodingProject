@@ -294,12 +294,21 @@
   <!-- ============ WHO'S THAT POKÉMON VIEW ============ -->
   <section class="guess" id="guessView" hidden>
     <div class="guess-head">
-      <h1>🎮 <span data-i18n="guessTitle">Who's That Pokémon?</span></h1>
+      <h1 id="guessHeading" class="guess-heading-link"><span aria-hidden="true">🎮</span> <span data-i18n="guessTitle">Who's That Pokémon?</span></h1>
       <p data-i18n="guessSub">Guess the Pokémon from its silhouette.</p>
     </div>
 
+    <!-- ---- INTRO SCREEN (rank overview, shown before the quiz starts) ---- -->
+    <div class="guess-intro" id="guessIntro">
+      <div class="guess-rank-grid" id="guessRankGrid"></div>
+      <div class="guess-intro-actions">
+        <button class="btn btn-primary btn-start-quiz" id="startQuizBtn">▶️ <span data-i18n="startQuiz">Start Quiz</span></button>
+      </div>
+      <p class="result-best" id="introBest"></p>
+    </div>
+
     <!-- ---- PLAY SCREEN (10 questions) ---- -->
-    <div class="guess-play" id="guessPlay">
+    <div class="guess-play" id="guessPlay" hidden>
       <div class="guess-progress-wrap">
         <div class="guess-progress-info">
           <span class="guess-qcounter" id="guessQuestionLabel">Question 1 / 10</span> <!-- text set dynamically in JS via t('questionCounter', n, total) -->
