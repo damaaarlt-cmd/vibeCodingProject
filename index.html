@@ -361,7 +361,22 @@
       <h1>📅 <span data-i18n="quizTitle">Daily Quiz</span></h1>
       <p id="quizDate" class="quiz-date"></p>
     </div>
+
     <div id="quizBody"></div>
+
+    <div class="streak-card" id="streakCard">
+      <div class="streak-fire" id="streakFire">🔥</div>
+      <div class="streak-info">
+        <p class="streak-label" data-i18n="currentStreakLabel">Current Streak</p>
+        <div class="streak-days"><span id="streakCount">0</span> <span data-i18n="daysLabel">Days</span></div>
+        <p class="streak-sub" id="streakSub"></p>
+      </div>
+    </div>
+
+    <div class="daily-history">
+      <h2 class="history-title" data-i18n="last7DaysTitle">Last 7 Days</h2>
+      <div id="historyList"></div>
+    </div>
   </section>
 
   <!-- ============ ACHIEVEMENTS VIEW ============ -->
