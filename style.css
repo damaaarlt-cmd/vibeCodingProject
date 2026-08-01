@@ -76,7 +76,7 @@ body.dark ::-webkit-scrollbar-thumb:hover {
 
 *,*::before,*::after { 
   box-sizing: border-box; 
-  -webkit-tap-highlight-color: transparent; /* Mematikan kotak biru di SEMUA elemen */
+  -webkit-tap-highlight-color: transparent;
 }
 html{ scroll-behavior: smooth; }
 body{
@@ -91,12 +91,9 @@ img{ max-width:100%; display:block; }
 button, a, input { 
   font-family: inherit; 
   cursor: pointer; 
-  /* Mematikan kotak biru transparan saat ditekan di HP */
   -webkit-tap-highlight-color: transparent; 
 }
-input { 
-  font-family: inherit; 
-}
+input { font-family: inherit; }
 ::selection{ background: var(--yellow); color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce){
@@ -117,7 +114,6 @@ body.dark .blob{ opacity:.28; }
 }
 
 .floating-balls { position: absolute; inset: 0; }
-
 .fball {
   position: absolute; 
   width: 34px; 
@@ -127,11 +123,8 @@ body.dark .blob{ opacity:.28; }
   border: 2px solid rgba(45, 55, 72, 0.25); 
   opacity: .5; 
   animation: drift 14s ease-in-out infinite;
-  
-  /* Trik jitu untuk mencegah warna background bocor melewati border */
   background-clip: padding-box; 
 }
-
 .fball::after { 
   content: ''; 
   position: absolute; 
@@ -140,11 +133,11 @@ body.dark .blob{ opacity:.28; }
   border-radius: 50%; 
   border: 2px solid rgba(45, 55, 72, 0.25); 
 }
-
 @keyframes drift { 
   0% { transform: translateY(110vh) rotate(0deg); } 
   100% { transform: translateY(-10vh) rotate(360deg); } 
 }
+
 .sparkles{ position:absolute; inset:0; }
 .sparkle{
   position:absolute; width:6px; height:6px; background: var(--yellow); border-radius:50%;
@@ -169,7 +162,7 @@ body.dark .brand{ color:#fff; }
   width: 30px; height: 30px; border-radius: 50%; flex: none;
   background: linear-gradient(180deg, var(--red) 0%, var(--red) 46%, var(--ink) 46%, var(--ink) 54%, #fff 54%, #fff 100%);
   border: 2px solid var(--ink); position: relative;
-  overflow: hidden; /* Memotong warna yang luber */
+  overflow: hidden;
 }
 .brand-ball::after{ content:''; position:absolute; inset:32%; background:#fff; border-radius:50%; border:2px solid var(--ink); }
 .brand-text{ font-family: var(--font-display); font-weight:700; font-size:1.3rem; letter-spacing:.2px; }
@@ -178,7 +171,7 @@ body.dark .brand{ color:#fff; }
   display: flex; 
   align-items: center; 
   gap: 10px; 
-  margin-left: auto; /* Mendorong semua tombol ke sisi kanan */
+  margin-left: auto;
 }
 .pill-btn{
   border:none; background: var(--cream); color: var(--ink);
@@ -198,13 +191,43 @@ body.dark .pill-btn .icon{ color: var(--yellow); }
 main{ max-width: 1180px; margin: 0 auto; padding: 20px 24px 80px; }
 
 /* ================= HERO ================= */
-.hero{ text-align:center; padding: 56px 20px 40px; position:relative; }
+.hero { 
+  text-align: center; 
+  padding: 56px 20px 60px; 
+  position: relative; 
+  z-index: 1; 
+}
+
+/* Background pemandangan siang */
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: calc(100% + 20px);
+  background-image: url('assets/hero section siang.png'); 
+  background-size: cover;
+  background-position: center center;
+  z-index: -1;
+  opacity: 0.85; 
+  -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+}
+
+/* Background pemandangan malam */
+body.dark .hero::before {
+  background-image: url('assets/hero section malam.png'); 
+  opacity: 0.8;
+}
+
 .hero-illustration{ display:flex; justify-content:center; margin-bottom:6px; }
 .hero-pokeball {
   width: 64px; height: 64px; border-radius: 50%;
   background: linear-gradient(180deg, var(--red) 0%, var(--red) 46%, var(--ink) 46%, var(--ink) 54%, #fff 54%, #fff 100%);
   border: 3px solid var(--ink); position: relative; box-shadow: var(--shadow-soft);
-  overflow: hidden; /* Memotong warna yang luber */
+  overflow: hidden;
 }
 .hero-pokeball::after{ content:''; position:absolute; inset:32%; background:#fff; border-radius:50%; border:3px solid var(--ink); }
 .spin-slow{ animation: spin 5s linear infinite; }
@@ -273,13 +296,7 @@ body.dark .btn-soft{ background:#2B2745; color:#fff; }
   gap: 16px; 
   overflow-x: auto; 
   padding: 6px 4px 14px; 
-  
-  /* 1. Mematikan efek mantul (karet) saat mentok di ujung kiri/kanan */
   overscroll-behavior-x: contain; 
-  
-  /* 2. Opsional: Kalau kamu tidak suka efek "magnet" yang menarik kartu, 
-     hapus/jadikan komentar kode di bawah ini. Kalau suka, biarkan saja. */
-  /* scroll-snap-type: x proximity; */
 }
 .rail-empty{ color:#9AA3B5; font-weight:600; padding: 20px 4px; }
 
@@ -329,7 +346,7 @@ body.dark .state-text{ color:#B7B2D6; }
   width: 70px; height: 70px; margin: 0 auto; border-radius: 50%; position: relative;
   background: linear-gradient(180deg, var(--red) 0%, var(--red) 46%, var(--ink) 46%, var(--ink) 54%, #fff 54%, #fff 100%);
   border: 3px solid var(--ink); animation: spin 1s linear infinite;
-  overflow: hidden; /* Memotong warna yang luber */
+  overflow: hidden;
 }
 .pb-inner{ position:absolute; inset:32%; background:#fff; border-radius:50%; border:3px solid var(--ink); }
 .dots{ display:flex; justify-content:center; gap:8px; margin-top:18px; }
@@ -375,8 +392,6 @@ body.dark .detail-card{ background:#241F3D; border-color: rgba(255,255,255,.06);
   position: absolute; top: 16px; right: 16px; width: 44px; height: 44px; border-radius: 50%; border: none;
   background: rgba(255, 255, 255, .25); backdrop-filter: blur(6px); font-size: 1.3rem; color: #fff;
   display: flex; align-items: center; justify-content: center; transition: transform .18s ease, background .2s;
-  
-  /* Tambahan untuk mencegah bug klik pada emoji */
   z-index: 10; 
   user-select: none; 
   -webkit-user-select: none;
@@ -475,6 +490,7 @@ body.dark .move-chip{ background: rgba(255,255,255,.05); }
   opacity:0; pointer-events:none; transition: opacity .25s ease, transform .25s ease; z-index:100; box-shadow: 0 12px 30px rgba(0,0,0,.3);
 }
 .toast.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
 /* ================= FOOTER ================= */
 .site-footer {
   text-align: center;
@@ -555,8 +571,7 @@ body.dark .footer-credits {
   max-width: 520px; 
   display: flex; 
   gap: 8px; 
-  margin: 0 auto; /* Menjaga kolom pencarian presisi di tengah layar */
-  /* order: 2; telah dihapus agar kembali ke urutan aslinya */
+  margin: 0 auto;
 }
 .top-search-box{ height:44px; }
 .top-search-box .search-icon{ width:17px; height:17px; margin-left:14px; }
@@ -571,10 +586,10 @@ body.dark .top-search-box input { color: #fff; }
 
 @media (max-width: 900px){
   .top-search-form { 
-    order: 3; /* Memaksa pencarian turun ke bawah di layar kecil */
+    order: 3; 
     flex-basis: 100%; 
     max-width: none; 
-    margin-top: 8px; /* Memberi jarak dari tombol atas */
+    margin-top: 8px; 
   }
   .nav-actions { 
     order: 2; 
@@ -672,13 +687,9 @@ body.dark .hp-track{ background: rgba(255,255,255,.1); }
   image-rendering: pixelated; filter: drop-shadow(0 14px 12px rgba(0,0,0,.2));
 }
 
-/* --- Memperbaiki Arah Hadap Sprite --- */
-/* P1 (Kiri) menggunakan sprite depan, jadi harus di-flip agar menghadap kanan (lawan) */
 .fighter-left .fighter-sprite { transform: scaleX(-1); }
-/* P2 (Kanan) menggunakan sprite depan (yang aslinya menghadap kiri bawah), jadi biarkan normal */
 .fighter-right .fighter-sprite { transform: scaleX(1); }
 
-/* --- Animasi Idle (Naik-Turun) --- */
 .fighter-left .idle-bob { animation: idle-bob-p1 1.6s ease-in-out infinite; }
 @keyframes idle-bob-p1 { 
   0%,100% { transform: scaleX(-1) translateY(0); } 
@@ -691,21 +702,18 @@ body.dark .hp-track{ background: rgba(255,255,255,.1); }
   50% { transform: scaleX(1) translateY(-9px); } 
 }
 
-/* --- Animasi Menyerang (Maju lalu mundur) --- */
 .fighter.attacking-left .fighter-sprite { animation: lunge-p1 .5s ease; }
 @keyframes lunge-p1 { 
   0%,100% { transform: scaleX(-1) translateX(0); } 
-  /* Ubah 34px menjadi -34px agar majunya ke kanan menuju Player 2 */
   40% { transform: scaleX(-1) translateX(-34px) scale(1.06); } 
 }
 
 .fighter.attacking-right .fighter-sprite { animation: lunge-p2 .5s ease; }
 @keyframes lunge-p2 { 
   0%,100% { transform: scaleX(1) translateX(0); } 
-  40% { transform: scaleX(1) translateX(-34px) scale(1.06); } /* P2 maju ke kiri bernilai minus */
+  40% { transform: scaleX(1) translateX(-34px) scale(1.06); } 
 }
 
-/* --- Animasi Terkena Hit & KO --- */
 .fighter.hit .fighter-sprite-wrap { animation: hit-flash .45s ease; }
 @keyframes hit-flash {
   0%,100%{ filter:none; }
@@ -725,7 +733,6 @@ body.dark .hp-track{ background: rgba(255,255,255,.1); }
 .arena-vs{ font-size:1.6rem; align-self:center; margin: 0 4px; animation: pulse-vs 1s ease-in-out infinite; }
 @keyframes pulse-vs{ 0%,100%{ transform: scale(1); opacity:.7;} 50%{ transform: scale(1.25); opacity:1;} }
 
-/* --- 32-Bit K.O. Animation --- */
 .ko-container {
   --ko-orange: #FF8A00;
   --ko-yellow: #FFD93D;
@@ -734,8 +741,6 @@ body.dark .hp-track{ background: rgba(255,255,255,.1); }
   --ko-white: #FFFFFF;
 
   position: absolute;
-  
-  /* Ganti top: 40% menjadi kalkulasi ini agar pas di tengah gambar (150px / 2 = 75px dari bawah) */
   top: calc(100% - 75px); 
   left: 50%;
   
@@ -748,7 +753,7 @@ body.dark .hp-track{ background: rgba(255,255,255,.1); }
 
 .ko-text {
   font-family: 'Press Start 2P', cursive;
-  font-size: 42px; /* Ukuran disesuaikan agar pas di layar mobile */
+  font-size: 42px; 
   font-weight: bold;
   letter-spacing: -4px;
   position: relative;
@@ -836,35 +841,26 @@ body.dark .modal-close{ background: rgba(255,255,255,.1); color:#fff; }
 body.dark .victory-panel h2 { color: #fff; }
 
 @media (max-width: 640px){
-  /* Mengubah arah susunan menjadi 3 baris (vertikal) */
   .picker-row { 
     flex-direction: column; 
     align-items: center; 
     gap: 16px; 
   }
-  
-  /* Melebarkan kartu agar proporsional di tengah layar */
   .picker-card { 
     width: 100%; 
     max-width: 280px; 
     padding: 16px; 
   }
-  
-  /* Merapikan letak tulisan VS di tengah-tengah */
   .vs-mark { 
     padding: 0; 
     margin: 8px 0; 
   }
-  
-  /* Mempertahankan ukuran sprite animasi saat battle */
   .fighter-sprite-wrap { height: 110px; }
   .fighter-sprite { width: 110px; height: 110px; }
   .ko-text { 
     font-size: 26px; 
     letter-spacing: -2px; 
   }
-  
-  /* Menyesuaikan titik tengahnya (110px dibagi 2 = 55px dari bawah) */
   .ko-container { 
     top: calc(100% - 55px); 
   }
@@ -904,17 +900,14 @@ body.dark .compare-head p, body.dark .guess-head p, body.dark .quiz-head p, body
 .compare-top { display:flex; align-items:center; justify-content:space-around; margin-bottom:24px; text-align:center; }
 .cmp-hero-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; }
 
-/* Sprite Animasi di Compare */
 .cmp-animated-sprite { 
   width: 130px; 
   height: 130px; 
   margin: 0 auto 12px; 
   object-fit: contain;
   image-rendering: pixelated; 
-  /* Efek drop-shadow sengaja dihilangkan di sini agar GIF transparan tidak berkotak abu-abu */
 }
 
-/* Pokemon Kiri dan Kanan */
 .cmp-left-img { transform: scaleX(-1); animation: idle-bob-p1 1.6s ease-in-out infinite; }
 .cmp-right-img { transform: scaleX(1); animation: idle-bob-p2 1.6s ease-in-out infinite; }
 
@@ -935,7 +928,6 @@ body.dark .cmp-bar-track { background: rgba(255,255,255,.08); }
 .cmp-val { min-width:34px; font-weight:800; font-size:.82rem; }
 .cmp-val.winner { color: var(--red); }
 
-/* Hasil Pemenang */
 .cmp-summary {
   margin-top:30px; text-align:center; font-weight:800; background: rgba(126,217,87,.14);
   border-radius: var(--radius-md); padding:16px 20px; color:#3FA34D;
@@ -944,52 +936,31 @@ body.dark .cmp-bar-track { background: rgba(255,255,255,.08); }
 }
 body.dark .cmp-summary { background: rgba(126,217,87,.1); }
 
-/* Gambar dan Animasi Pemenang */
-.cmp-winner-img { width: 80px; height: 80px; object-fit: contain; image-rendering: pixelated; }
+.cmp-winner-img { width: 80px; height: 80px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 8px 8px rgba(0,0,0,.15)); animation: winner-bounce 1.4s ease infinite; }
 .cmp-winner-left { transform: scaleX(-1); animation: winner-bounce-p1 1.4s ease infinite; }
 .cmp-winner-right { transform: scaleX(1); animation: winner-bounce-p2 1.4s ease infinite; }
 
-/* Keyframe Lompatan Arah Sesuai Pemenang */
 @keyframes winner-bounce-p1 { 0%,100%{ transform: scaleX(-1) translateY(0);} 50%{ transform: scaleX(-1) translateY(-16px);} }
 @keyframes winner-bounce-p2 { 0%,100%{ transform: scaleX(1) translateY(0);} 50%{ transform: scaleX(1) translateY(-16px);} }
 
-.cmp-stat-row{ margin-bottom:16px; }
-.cmp-stat-label{ text-align:center; font-weight:800; font-size:.72rem; text-transform:uppercase; letter-spacing:.5px; color:#9AA3B5; margin-bottom:6px; }
-.cmp-bar-row{ display:grid; grid-template-columns: 1fr 1fr; gap:4px; align-items:center; }
-.cmp-bar-wrap{ display:flex; align-items:center; gap:8px; }
-.cmp-bar-wrap.right{ flex-direction:row-reverse; }
-.cmp-bar-track{ flex:1; height:12px; border-radius:999px; background: rgba(45,55,72,.08); overflow:hidden; position:relative; }
-body.dark .cmp-bar-track{ background: rgba(255,255,255,.08); }
-.cmp-bar-fill{ height:100%; border-radius:999px; width:0%; transition: width .9s cubic-bezier(.22,1,.36,1); }
-.cmp-bar-wrap.left .cmp-bar-fill{ background: linear-gradient(90deg, #A78BFA, #6EC6FF); margin-left:auto; }
-.cmp-bar-wrap.right .cmp-bar-fill{ background: linear-gradient(90deg, #FF9D55, #FF4D4D); }
-.cmp-val{ min-width:34px; font-weight:800; font-size:.82rem; }
-.cmp-val.winner{ color: var(--red); }
-
-.cmp-summary{
-  margin-top: 30px; text-align:center; font-weight:800; background: rgba(126,217,87,.14);
-  border-radius: var(--radius-md); padding: 16px 20px; color:#3FA34D;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
-  font-size: 1.05rem;
-}
-body.dark .cmp-summary{ background: rgba(126,217,87,.1); }
-
-/* Mengatur ukuran dan animasi sprite pemenang */
-.cmp-winner-img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
-  image-rendering: pixelated;
-  filter: drop-shadow(0 8px 8px rgba(0,0,0,.15));
-  animation: winner-bounce 1.4s ease infinite;
-}
-
-/* ---------------- guess game ---------------- */
+/* ---------------- guess game (ranked 10-question session) ---------------- */
+.guess-progress-wrap{ max-width:480px; margin: 18px auto 0; padding: 0 16px; }
+.guess-progress-info{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.guess-qcounter{ font-weight:800; font-size:.82rem; color:#5B6478; }
+body.dark .guess-qcounter{ color:#B7B2D6; }
 .guess-score{
-  display:inline-block; margin-top:10px; font-weight:900; background: var(--card-bg); padding:8px 18px;
-  border-radius:999px; box-shadow: 0 8px 16px -8px rgba(45,55,72,.3);
+  font-weight:900; background: var(--card-bg); padding:6px 16px;
+  border-radius:999px; box-shadow: 0 8px 16px -8px rgba(45,55,72,.3); font-size:.85rem;
 }
 body.dark .guess-score{ background:#241F3D; }
+.guess-progress-track{
+  height:12px; border-radius:999px; background: rgba(45,55,72,.08); overflow:hidden;
+}
+body.dark .guess-progress-track{ background: rgba(255,255,255,.08); }
+.guess-progress-fill{
+  height:100%; border-radius:999px; width:0%; background: linear-gradient(90deg, var(--yellow), var(--red));
+  transition: width .5s cubic-bezier(.22,1,.36,1);
+}
 .guess-stage{ display:flex; justify-content:center; margin: 30px auto; }
 .guess-silhouette{
   width:220px; height:220px; object-fit:contain; filter: brightness(0) opacity(.85);
@@ -1011,6 +982,107 @@ body.dark .guess-choice{ background:#241F3D; color:#fff; }
 .guess-actions{ text-align:center; margin-top: 28px; }
 #guessNextBtn{ display:none; }
 #guessNextBtn.show{ display:inline-block; }
+
+/* ---------------- guess result screen (Trainer Rank) ---------------- */
+.guess-result{ position:relative; max-width:460px; margin: 20px auto 0; padding: 0 16px; }
+.rank-fx{ position:absolute; inset:-40px -16px auto -16px; height:260px; pointer-events:none; overflow:visible; z-index:0; }
+
+.result-card{
+  position:relative; z-index:1; background: var(--card-bg); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft); padding: 30px 26px 26px; text-align:center;
+  animation: result-card-in .5s cubic-bezier(.22,1,.36,1);
+}
+body.dark .result-card{ background:#241F3D; }
+@keyframes result-card-in{ from{ opacity:0; transform: translateY(18px) scale(.97);} to{ opacity:1; transform:none;} }
+
+.result-eyebrow{
+  font-family: var(--font-display); font-weight:700; letter-spacing:.5px; text-transform:uppercase;
+  font-size:.8rem; color: var(--red); margin-bottom:6px;
+}
+.result-label{
+  font-weight:800; font-size:.72rem; text-transform:uppercase; letter-spacing:.5px; color:#9AA3B5; margin: 14px 0 2px;
+}
+.result-score-big{
+  font-family: var(--font-display); font-size: clamp(2.4rem,8vw,3.2rem); font-weight:800; line-height:1;
+}
+.result-score-big span{ display:inline-block; }
+
+.rank-badge-wrap{ margin: 18px auto 6px; animation: rank-badge-pop .55s cubic-bezier(.34,1.56,.64,1) .15s both; }
+@keyframes rank-badge-pop{ from{ opacity:0; transform: scale(.6);} to{ opacity:1; transform: scale(1);} }
+.rank-badge-emoji{ font-size: 3.2rem; filter: drop-shadow(0 6px 10px rgba(0,0,0,.18)); }
+.rank-badge-title{ font-family: var(--font-display); font-size:1.3rem; font-weight:700; margin-top:4px; }
+
+.rank-progress-wrap{ max-width:280px; margin: 14px auto 0; }
+.rank-progress-track{
+  height:14px; border-radius:999px; background: rgba(45,55,72,.08); overflow:hidden;
+}
+body.dark .rank-progress-track{ background: rgba(255,255,255,.08); }
+.rank-progress-fill{
+  height:100%; border-radius:999px; width:0%; background: linear-gradient(90deg, var(--yellow), var(--red));
+  transition: width 1s cubic-bezier(.22,1,.36,1) .3s;
+}
+.rank-progress-label{ margin-top:6px; font-weight:800; font-size:.78rem; color:#9AA3B5; }
+
+.result-accuracy{ font-family: var(--font-display); font-size:1.5rem; font-weight:700; }
+.rank-message{ margin-top:14px; font-weight:700; color:#5B6478; line-height:1.5; }
+body.dark .rank-message{ color:#B7B2D6; }
+
+.result-actions{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:24px; }
+.result-best{ margin-top:14px; font-size:.78rem; font-weight:700; color:#9AA3B5; }
+
+/* Rank-tier accent colors on the badge title */
+.rank-badge-title.rank-youngster{ color: var(--ink); }
+body.dark .rank-badge-title.rank-youngster{ color:#fff; }
+.rank-badge-title.rank-trainer{ color: var(--sky); }
+.rank-badge-title.rank-ace{ color: var(--purple); }
+.rank-badge-title.rank-gym{ color:#FFB020; }
+.rank-badge-title.rank-champion{ color: var(--red); }
+.rank-badge-title.rank-master{
+  background: linear-gradient(90deg, #FFD93D, #FF4D4D, #A78BFA, #6EC6FF);
+  background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip:text; color:transparent;
+  animation: master-shimmer 2.4s linear infinite;
+}
+@keyframes master-shimmer{ to{ background-position: 300% 0; } }
+
+/* Champion celebration: soft glow + gold sparkles */
+.result-card.celebrate-champion{ box-shadow: 0 0 0 3px rgba(255,217,61,.5), var(--shadow-soft), 0 0 40px 6px rgba(255,217,61,.35); }
+.fx-sparkle{
+  position:absolute; font-size:1.3rem; opacity:0; pointer-events:none;
+  animation: fx-sparkle-pop 1.4s ease-out forwards;
+}
+@keyframes fx-sparkle-pop{
+  0%{ opacity:0; transform: translateY(10px) scale(.4) rotate(0deg); }
+  25%{ opacity:1; }
+  100%{ opacity:0; transform: translateY(-60px) scale(1.1) rotate(50deg); }
+}
+
+/* Pokémon Master celebration: confetti + poké ball burst */
+.fx-confetti{
+  position:absolute; top:-10px; width:9px; height:14px; opacity:0; border-radius:2px;
+  animation: fx-confetti-fall 1.9s ease-in forwards;
+}
+@keyframes fx-confetti-fall{
+  0%{ opacity:0; transform: translateY(-10px) rotate(0deg); }
+  8%{ opacity:1; }
+  100%{ opacity:.95; transform: translateY(220px) rotate(540deg); }
+}
+.fx-pokeball{
+  position:absolute; left:50%; top:40%; width:46px; height:46px; margin:-23px 0 0 -23px;
+  border-radius:50%; opacity:0;
+  background: linear-gradient(#FF4D4D 0 47%, #2D3748 47% 53%, #fff 53% 100%);
+  box-shadow: 0 0 0 3px #2D3748 inset;
+  animation: fx-pokeball-burst 1s cubic-bezier(.22,1,.36,1) forwards;
+}
+.fx-pokeball::after{
+  content:''; position:absolute; left:50%; top:50%; width:14px; height:14px; margin:-7px 0 0 -7px;
+  background:#fff; border:3px solid #2D3748; border-radius:50%;
+}
+@keyframes fx-pokeball-burst{
+  0%{ opacity:0; transform: scale(.2) rotate(0deg); }
+  55%{ opacity:1; transform: scale(1.15) rotate(200deg); }
+  100%{ opacity:0; transform: scale(1.4) rotate(320deg); }
+}
 
 /* ---------------- daily quiz ---------------- */
 .quiz-date{ font-weight:700; }
@@ -1094,8 +1166,6 @@ body.dark .feature-sub{ color:#8A84B0; }
   flex: none; 
   filter: drop-shadow(0 14px 14px rgba(0,0,0,.25)); 
   animation: art-in .5s cubic-bezier(.34,1.56,.64,1); 
-  
-  /* Tambahan agar animasi GIF tidak terpotong dan pixelnya tetap tajam */
   object-fit: contain;
   image-rendering: pixelated;
 }
@@ -1118,12 +1188,14 @@ body.dark .feature-sub{ color:#8A84B0; }
   border:none; background: var(--card-bg); border-radius: var(--radius-md); padding:16px 12px; text-align:center;
   box-shadow: 0 12px 26px -16px rgba(45,55,72,.3); border: 1px solid var(--card-border);
   transition: transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; cursor:pointer;
+  color: var(--ink);
 }
-body.dark .region-card{ background:#241F3D; border-color: rgba(255,255,255,.06); }
+body.dark .region-card{ background:#241F3D; border-color: rgba(255,255,255,.06); color: #fff;}
 .region-card:hover{ transform: translateY(-6px) scale(1.03); box-shadow: 0 18px 34px -14px rgba(45,55,72,.35); }
 .region-card img{ width:76px; height:76px; margin:0 auto 8px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.15)); }
-.region-name{ font-weight:800; font-family: var(--font-display); font-size:1rem; }
+.region-name{ font-weight:800; font-size:1rem; }
 .region-gen{ font-size:.7rem; color:#9AA3B5; font-weight:700; margin-top:2px; }
+
 
 .catalog-region-banner{
   display:inline-flex; align-items:center; gap:10px; margin-top:16px; background: rgba(255,217,61,.18);
@@ -1153,8 +1225,15 @@ body.dark .strongest-row{ background:#241F3D; border-color: rgba(255,255,255,.06
 .strongest-bst span{ display:block; font-family: var(--font-body); font-size:.6rem; font-weight:800; color:#9AA3B5; letter-spacing:.5px; }
 
 /* ---------------- fun facts ---------------- */
-.fun-facts-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:16px; }
-.fun-fact-card{
+.fun-facts-grid { 
+  display: flex; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  gap: 16px; 
+}
+.fun-fact-card {
+  flex: 1 1 280px; 
+  max-width: 480px;
   background: var(--card-bg); border-radius: var(--radius-md); padding:18px; box-shadow: 0 10px 22px -14px rgba(45,55,72,.3);
   display:flex; gap:10px; align-items:flex-start; font-weight:600; font-size:.85rem; line-height:1.5; border: 1px solid var(--card-border);
   animation: card-in .4s ease backwards;
@@ -1174,36 +1253,28 @@ body.dark .fun-fact-card{ background:#241F3D; border-color: rgba(255,255,255,.06
    ========================================= */
 @media screen and (max-width: 768px) {
   
-  /* 1. Mencegah Menu Dropdown terpotong di kanan layar */
   .more-dropdown {
-    right: 0 !important;       /* Kunci di kanan persis tombol Lainnya */
+    right: 0 !important;       
     left: auto !important;
     transform: none !important;
     width: max-content;
     max-width: 90vw;
   }
 
-  /* 2. Merapikan jarak tombol-tombol di Header */
   .nav-actions {
     gap: 8px !important;
   }
 
-  /* 3. Mengecilkan tombol utama sedikit agar rapi di HP */
   .btn {
     font-size: 0.85rem !important;
     padding: 10px 16px !important;
   }
-  /* =========================================
-     4. MEMAKSA HEADER MENJADI 2 BARIS SAJA
-     ========================================= */
   
-  /* Merapatkan jarak antar elemen di header */
   .topbar-inner {
     gap: 10px 4px !important; 
     padding: 12px 10px !important;
   }
   
-  /* Mengecilkan sedikit teks "Pokédex" dan logo bola */
   .brand-text {
     font-size: 1.05rem !important;
   }
@@ -1212,7 +1283,6 @@ body.dark .fun-fact-card{ background:#241F3D; border-color: rgba(255,255,255,.06
     height: 24px !important;
   }
 
-  /* Merapatkan dan mengecilkan tombol navigasi */
   .nav-actions {
     gap: 6px !important;
   }
@@ -1225,7 +1295,6 @@ body.dark .fun-fact-card{ background:#241F3D; border-color: rgba(255,255,255,.06
     width: 36px !important;
   }
   
-  /* Menghilangkan teks "Lainnya" agar muat sebaris (Sisa ikon ☰) */
   #moreNavBtn span:last-child {
     display: none !important;
   }
