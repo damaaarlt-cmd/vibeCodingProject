@@ -147,11 +147,29 @@ const I18N = {
     shareRankText:(rank,score)=>`I ranked ${rank} (${score}/10) on the Who's That Pokémon quiz! Can you beat my score?`,
 
     quizTitle:"Daily Quiz", quizBtnHome:"📅 Daily Quiz",
-    quizQuestion:"Who's that Pokémon?",
-    quizAlreadyPlayed:"You already played today's quiz — come back tomorrow!",
-    quizYourAnswerCorrect:(name)=>`✅ Correct! It was ${name}.`,
-    quizYourAnswerWrong:(name)=>`❌ Not quite — it was ${name}.`,
-    quizScoreLine:(correct,total)=>`Quiz score: ${correct} / ${total} correct all-time`,
+    quizQ_pokemon:"Who's that Pokémon?",
+    quizQ_type:(n)=>`What type is ${n}?`,
+    quizQ_region:(n)=>`Which region is ${n} originally from?`,
+    quizQ_generation:(n)=>`Which generation is ${n} from?`,
+    quizQ_ability:(n)=>`Which of these is one of ${n}'s abilities?`,
+    quizQ_height:(n)=>`What is ${n}'s height?`,
+    quizQ_weight:(n)=>`What is ${n}'s weight?`,
+    quizQ_evolutionFrom:(n)=>`Which Pokémon does ${n} evolve from?`,
+    quizQ_evolutionTo:(n)=>`What does ${n} evolve into?`,
+    generationLabel:(g)=>`Generation ${g}`,
+    quizCorrectTitle:"✅ Correct!", quizWrongTitle:"❌ Not Quite!",
+    quizCorrectExplain:(ans)=>`That's ${ans}.`,
+    quizWrongExplain:(ans)=>`The correct answer was ${ans}.`,
+    quizCorrectNote:"Excellent work, Trainer! Come back tomorrow for another Daily Quiz.",
+    quizWrongNote:"Don't worry! A new Daily Quiz will be available tomorrow.",
+    todaysScoreLabel:"Today's Score",
+    currentStreakLabel:"Current Streak", daysLabel:"Days",
+    keepStreakAlive:"Keep your streak alive!",
+    startStreakToday:"Complete today's quiz to start your streak!",
+    last7DaysTitle:"Last 7 Days", todayLabel:"Today", yesterdayLabel:"Yesterday",
+    noHistoryYet:"No Daily Quiz history yet.",
+    startTodaysQuizPrompt:"Complete today's Daily Quiz to begin your journey!",
+    startTodaysQuiz:"Start Today's Quiz",
 
     achievementsTitle:"Achievements", achievementsBtnHome:"🏆 Achievements", achievementsSub:"Track your Pokédex completion and unlock badges.",
     dexProgressLabel:(n,total)=>`${n} / ${total} Pokémon viewed`,
@@ -270,11 +288,29 @@ const I18N = {
     shareRankText:(rank,score)=>`Peringkatku ${rank} (${score}/10) di kuis Siapakah Pokémon Ini! Bisakah kamu mengalahkan skorku?`,
 
     quizTitle:"Kuis Harian", quizBtnHome:"📅 Kuis Harian",
-    quizQuestion:"Siapakah Pokémon ini?",
-    quizAlreadyPlayed:"Kamu sudah main kuis hari ini — datang lagi besok!",
-    quizYourAnswerCorrect:(name)=>`✅ Benar! Itu adalah ${name}.`,
-    quizYourAnswerWrong:(name)=>`❌ Kurang tepat — itu adalah ${name}.`,
-    quizScoreLine:(correct,total)=>`Skor kuis: ${correct} / ${total} benar sepanjang waktu`,
+    quizQ_pokemon:"Siapakah Pokémon ini?",
+    quizQ_type:(n)=>`Apa tipe dari ${n}?`,
+    quizQ_region:(n)=>`${n} awalnya berasal dari wilayah mana?`,
+    quizQ_generation:(n)=>`${n} berasal dari generasi ke berapa?`,
+    quizQ_ability:(n)=>`Manakah salah satu kemampuan (ability) milik ${n}?`,
+    quizQ_height:(n)=>`Berapa tinggi ${n}?`,
+    quizQ_weight:(n)=>`Berapa berat ${n}?`,
+    quizQ_evolutionFrom:(n)=>`${n} berevolusi dari Pokémon apa?`,
+    quizQ_evolutionTo:(n)=>`${n} berevolusi menjadi apa?`,
+    generationLabel:(g)=>`Generasi ${g}`,
+    quizCorrectTitle:"✅ Benar!", quizWrongTitle:"❌ Kurang Tepat!",
+    quizCorrectExplain:(ans)=>`Itu adalah ${ans}.`,
+    quizWrongExplain:(ans)=>`Jawaban yang benar adalah ${ans}.`,
+    quizCorrectNote:"Kerja bagus, Trainer! Kembali lagi besok untuk Kuis Harian berikutnya.",
+    quizWrongNote:"Jangan khawatir! Kuis Harian baru akan tersedia besok.",
+    todaysScoreLabel:"Skor Hari Ini",
+    currentStreakLabel:"Streak Saat Ini", daysLabel:"Hari",
+    keepStreakAlive:"Pertahankan streak-mu!",
+    startStreakToday:"Selesaikan kuis hari ini untuk memulai streak-mu!",
+    last7DaysTitle:"7 Hari Terakhir", todayLabel:"Hari Ini", yesterdayLabel:"Kemarin",
+    noHistoryYet:"Belum ada riwayat Kuis Harian.",
+    startTodaysQuizPrompt:"Selesaikan Kuis Harian hari ini untuk memulai perjalananmu!",
+    startTodaysQuiz:"Mulai Kuis Hari Ini",
 
     achievementsTitle:"Pencapaian", achievementsBtnHome:"🏆 Pencapaian", achievementsSub:"Pantau progres Pokédex-mu dan buka lencana baru.",
     dexProgressLabel:(n,total)=>`${n} / ${total} Pokémon telah dilihat`,
@@ -445,6 +481,10 @@ const els = {
   quizView: document.getElementById('quizView'),
   quizDate: document.getElementById('quizDate'),
   quizBody: document.getElementById('quizBody'),
+  streakFire: document.getElementById('streakFire'),
+  streakCount: document.getElementById('streakCount'),
+  streakSub: document.getElementById('streakSub'),
+  historyList: document.getElementById('historyList'),
 
   achievementsView: document.getElementById('achievementsView'),
   dexProgressFill: document.getElementById('dexProgressFill'),
@@ -502,6 +542,39 @@ const state = {
   },
   unlockedAchievements: JSON.parse(localStorage.getItem('pokedex_unlocked_achievements') || '[]'),
 };
+
+/* ---------------- TRAINER RANK TABLE ---------------- */
+// Score out of 10 → rank tier. Matches the game's official-style Trainer
+// classes so results feel authentic and give players a clear ladder to climb.
+// Declared before init() runs because a page refresh can land directly on
+// #/guess, which calls renderGuessRankCards() synchronously during init().
+const TRAINER_RANKS = [
+  { min:0, max:2,  key:'youngster', css:'rank-youngster', emoji:'🎒' },
+  { min:3, max:4,  key:'trainer',   css:'rank-trainer',   emoji:'🧢' },
+  { min:5, max:6,  key:'ace',       css:'rank-ace',       emoji:'⚔️' },
+  { min:7, max:8,  key:'gym',       css:'rank-gym',       emoji:'🏅' },
+  { min:9, max:9,  key:'champion',  css:'rank-champion',  emoji:'👑' },
+  { min:10,max:10, key:'master',    css:'rank-master',    emoji:'⭐' },
+];
+function determineTrainerRank(score){
+  return TRAINER_RANKS.find(r => score >= r.min && score <= r.max) || TRAINER_RANKS[0];
+}
+
+/* ---------------- ACHIEVEMENTS TABLE ---------------- */
+// Declared before init() for the same reason as TRAINER_RANKS above — a page
+// refresh can land directly on #/achievements, which renders this synchronously.
+const ACHIEVEMENTS = [
+  { id:'first_steps',      icon:'👣', target:()=>1,   current:()=> state.progress.viewedIds.length },
+  { id:'explorer',         icon:'🧭', target:()=>50,  current:()=> state.progress.viewedIds.length },
+  { id:'century',          icon:'💯', target:()=>100, current:()=> state.progress.viewedIds.length },
+  { id:'full_dex',         icon:'📚', target:()=> Math.max(state.allNames.length,1), current:()=> state.progress.viewedIds.length },
+  { id:'type_collector',   icon:'🌈', target:()=>18,  current:()=> state.progress.typesSeen.length },
+  { id:'legend_hunter',    icon:'✨', target:()=>5,   current:()=> state.progress.legendaryViewed.length },
+  { id:'heart_collector',  icon:'❤️', target:()=>10,  current:()=> state.progress.favoritesAdded },
+  { id:'battle_champion',  icon:'⚔️', target:()=>5,   current:()=> state.progress.battlesWon },
+  { id:'quiz_master',      icon:'🧠', target:()=>10,  current:()=> state.progress.quizCorrect },
+  { id:'guess_pro',        icon:'🎯', target:()=>10,  current:()=> state.progress.guessCorrect },
+];
 
 /* ---------------- INIT ---------------- */
 init();
@@ -1826,19 +1899,6 @@ function markViewed(pokemon, species){
   if(changed){ saveProgress(); checkAchievements(); }
 }
 
-const ACHIEVEMENTS = [
-  { id:'first_steps',      icon:'👣', target:()=>1,   current:()=> state.progress.viewedIds.length },
-  { id:'explorer',         icon:'🧭', target:()=>50,  current:()=> state.progress.viewedIds.length },
-  { id:'century',          icon:'💯', target:()=>100, current:()=> state.progress.viewedIds.length },
-  { id:'full_dex',         icon:'📚', target:()=> Math.max(state.allNames.length,1), current:()=> state.progress.viewedIds.length },
-  { id:'type_collector',   icon:'🌈', target:()=>18,  current:()=> state.progress.typesSeen.length },
-  { id:'legend_hunter',    icon:'✨', target:()=>5,   current:()=> state.progress.legendaryViewed.length },
-  { id:'heart_collector',  icon:'❤️', target:()=>10,  current:()=> state.progress.favoritesAdded },
-  { id:'battle_champion',  icon:'⚔️', target:()=>5,   current:()=> state.progress.battlesWon },
-  { id:'quiz_master',      icon:'🧠', target:()=>10,  current:()=> state.progress.quizCorrect },
-  { id:'guess_pro',        icon:'🎯', target:()=>10,  current:()=> state.progress.guessCorrect },
-];
-
 function checkAchievements(){
   ACHIEVEMENTS.forEach(a=>{
     const cur = a.current(), tgt = a.target();
@@ -1961,21 +2021,6 @@ function renderCompare(){
 }
 
 /* ---------------- WHO'S THAT POKÉMON? (10-question ranked session) ---------------- */
-
-// Trainer Rank table — score out of 10 → rank tier.
-// Matches the game's official-style Trainer classes so results feel authentic
-// and give players a clear ladder to climb (and compare with friends).
-const TRAINER_RANKS = [
-  { min:0, max:2,  key:'youngster', css:'rank-youngster', emoji:'🎒' },
-  { min:3, max:4,  key:'trainer',   css:'rank-trainer',   emoji:'🧢' },
-  { min:5, max:6,  key:'ace',       css:'rank-ace',       emoji:'⚔️' },
-  { min:7, max:8,  key:'gym',       css:'rank-gym',       emoji:'🏅' },
-  { min:9, max:9,  key:'champion',  css:'rank-champion',  emoji:'👑' },
-  { min:10,max:10, key:'master',    css:'rank-master',    emoji:'⭐' },
-];
-function determineTrainerRank(score){
-  return TRAINER_RANKS.find(r => score >= r.min && score <= r.max) || TRAINER_RANKS[0];
-}
 
 function updateGuessScore(){
   els.guessScore.textContent = `${state.guess.sessionScore} / 10`;
@@ -2228,6 +2273,16 @@ async function shareGuessResult(){
 }
 
 /* ---------------- DAILY QUIZ ---------------- */
+const DAILY_CATEGORIES = ['pokemon','type','region','generation','ability','height','weight','evolution'];
+const ABILITY_POOL = [
+  'Overgrow','Blaze','Torrent','Shield Dust','Swarm','Keen Eye','Run Away','Intimidate','Static','Levitate',
+  'Chlorophyll','Solar Power','Flash Fire','Water Absorb','Volt Absorb','Sand Veil','Sturdy','Rock Head','Clear Body','Natural Cure',
+  'Serene Grace','Swift Swim','Battle Armor','Compound Eyes','Insomnia','Color Change','Immunity','Flame Body','Guts','Marvel Scale',
+  'Own Tempo','Oblivious','Cloud Nine','Trace','Huge Power','Poison Point','Rivalry','Steadfast','Snow Cloak','Gluttony',
+  'Anger Point','Unburden','Heatproof','Simple','Dry Skin','Download','Iron Fist','Pressure','Adaptability','Skill Link',
+  'Multiscale','Regenerator','Sheer Force','Magic Guard','Prankster','Moxie','Technician',
+];
+
 function hashStringToInt(str){
   let hash = 0;
   for(let i=0;i<str.length;i++){ hash = (hash*31 + str.charCodeAt(i)) >>> 0; }
@@ -2237,73 +2292,223 @@ function todayDateStr(){
   const d = new Date();
   return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
+function dateStrOffset(dateStr, offsetDays){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  dt.setDate(dt.getDate() + offsetDays);
+  return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+}
+function formatDisplayDate(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  return dt.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { day:'2-digit', month:'long', year:'numeric' });
+}
+function formatShortDate(dateStr){
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m-1, d);
+  return dt.toLocaleDateString(state.lang === 'id' ? 'id-ID' : 'en-US', { day:'2-digit', month:'short' });
+}
+function shuffleArr(arr){ return [...arr].sort(()=> Math.random()-0.5); }
+
 function getDailyQuizRecord(){
   const today = todayDateStr();
   const stored = JSON.parse(localStorage.getItem('pokedex_daily_quiz') || 'null');
   if(stored && stored.date === today) return stored;
   const seed = hashStringToInt('pokedex-quiz-'+today);
   const id = (seed % 1010) + 1;
-  const record = { date: today, pokemonId: id, answered: false, correct: null };
+  const catSeed = hashStringToInt('pokedex-quiz-cat-'+today);
+  const category = DAILY_CATEGORIES[catSeed % DAILY_CATEGORIES.length];
+  const record = { date: today, pokemonId: id, category, answered: false, correct: null, correctDisplay: null, userDisplay: null, pokemonName: null };
   localStorage.setItem('pokedex_daily_quiz', JSON.stringify(record));
   return record;
 }
 function saveDailyQuizRecord(record){ localStorage.setItem('pokedex_daily_quiz', JSON.stringify(record)); }
 
+// Builds today's question for the given category. Returns null when the
+// category doesn't apply to this Pokémon (e.g. no evolution data) so the
+// caller can fall back to a category that always works.
+async function buildDailyQuestion(category, data){
+  const displayName = capitalize(data.name.replace(/-/g,' '));
+  const pool = state.allNames.length ? state.allNames : [];
+
+  function pickDistractorNames(excludeName, count){
+    const shuf = shuffleArr(pool);
+    const out = [];
+    for(const p of shuf){
+      if(p.name !== excludeName && !out.includes(p.name)) out.push(p.name);
+      if(out.length >= count) break;
+    }
+    while(out.length < count){ out.push(excludeName + '-x' + out.length); }
+    return out.map(n=> capitalize(n.replace(/-/g,' ')));
+  }
+
+  if(category === 'pokemon'){
+    const correct = displayName;
+    const choices = shuffleArr([...pickDistractorNames(data.name, 3), correct]);
+    return { questionText: t('quizQ_pokemon'), correctDisplay: correct, choices, imageMode:'silhouette' };
+  }
+
+  if(category === 'type'){
+    const correctType = data.types[0].type.name;
+    const otherTypes = ALL_TYPES.filter(ty=> !data.types.some(dt=> dt.type.name === ty));
+    const distractors = shuffleArr(otherTypes).slice(0,3).map(capitalize);
+    const correct = capitalize(correctType);
+    const choices = shuffleArr([...distractors, correct]);
+    return { questionText: t('quizQ_type', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+  }
+
+  if(category === 'region'){
+    const region = REGIONS.find(r=> data.id >= r.range[0] && data.id <= r.range[1]) || REGIONS[0];
+    const distractors = shuffleArr(REGIONS.filter(r=> r.key !== region.key)).slice(0,3).map(r=> r.name);
+    const choices = shuffleArr([...distractors, region.name]);
+    return { questionText: t('quizQ_region', displayName), correctDisplay: region.name, choices, imageMode:'reveal' };
+  }
+
+  if(category === 'generation'){
+    const region = REGIONS.find(r=> data.id >= r.range[0] && data.id <= r.range[1]) || REGIONS[0];
+    const distractors = shuffleArr(REGIONS.filter(r=> r.gen !== region.gen)).slice(0,3).map(r=> t('generationLabel', r.gen));
+    const correct = t('generationLabel', region.gen);
+    const choices = shuffleArr([...distractors, correct]);
+    return { questionText: t('quizQ_generation', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+  }
+
+  if(category === 'ability'){
+    const primaryAbility = data.abilities.find(a=> !a.is_hidden) || data.abilities[0];
+    const correct = capitalize(primaryAbility.ability.name.replace(/-/g,' '));
+    const ownAbilityNames = data.abilities.map(a=> capitalize(a.ability.name.replace(/-/g,' ')).toLowerCase());
+    const candidatePool = ABILITY_POOL.filter(a=> a.toLowerCase() !== correct.toLowerCase() && !ownAbilityNames.includes(a.toLowerCase()));
+    const distractors = shuffleArr(candidatePool).slice(0,3);
+    const choices = shuffleArr([...distractors, correct]);
+    return { questionText: t('quizQ_ability', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+  }
+
+  if(category === 'height'){
+    const meters = data.height/10;
+    const fmt = (v)=> `${v.toFixed(1)}m`;
+    const correct = fmt(meters);
+    const deltas = shuffleArr([0.3,-0.3,0.5,-0.5,0.8,-0.8,1.1,-1.1]);
+    const distractSet = new Set();
+    for(const dlt of deltas){
+      const v = Math.max(0.1, Math.round((meters+dlt)*10)/10);
+      const s = fmt(v);
+      if(s !== correct) distractSet.add(s);
+      if(distractSet.size >= 3) break;
+    }
+    const choices = shuffleArr([...Array.from(distractSet).slice(0,3), correct]);
+    return { questionText: t('quizQ_height', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+  }
+
+  if(category === 'weight'){
+    const kg = data.weight/10;
+    const fmt = (v)=> `${v.toFixed(1)}kg`;
+    const correct = fmt(kg);
+    const factors = shuffleArr([0.5,1.5,0.7,1.3,0.6,1.8]);
+    const distractSet = new Set();
+    for(const f of factors){
+      const v = Math.max(0.1, Math.round(kg*f*10)/10);
+      const s = fmt(v);
+      if(s !== correct) distractSet.add(s);
+      if(distractSet.size >= 3) break;
+    }
+    const choices = shuffleArr([...Array.from(distractSet).slice(0,3), correct]);
+    return { questionText: t('quizQ_weight', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+  }
+
+  if(category === 'evolution'){
+    try{
+      const speciesRes = await fetch(`${API}/pokemon-species/${data.id}`);
+      const species = await speciesRes.json();
+
+      if(species.evolves_from_species){
+        const fromName = species.evolves_from_species.name;
+        const correct = capitalize(fromName.replace(/-/g,' '));
+        const choices = shuffleArr([...pickDistractorNames(fromName, 3), correct]);
+        return { questionText: t('quizQ_evolutionFrom', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+      }
+
+      const chainRes = await fetch(species.evolution_chain.url);
+      const chainData = await chainRes.json();
+      const nextName = findNextEvolution(chainData.chain, data.name);
+      if(nextName){
+        const correct = capitalize(nextName.replace(/-/g,' '));
+        const choices = shuffleArr([...pickDistractorNames(nextName, 3), correct]);
+        return { questionText: t('quizQ_evolutionTo', displayName), correctDisplay: correct, choices, imageMode:'reveal' };
+      }
+      return null; // standalone Pokémon with no evolutions at all — fall back
+    }catch(e){
+      console.error(e);
+      return null;
+    }
+  }
+
+  return null;
+}
+
+function findNextEvolution(node, name){
+  if(node.species.name === name){
+    return node.evolves_to.length > 0 ? node.evolves_to[0].species.name : null;
+  }
+  for(const child of node.evolves_to){
+    const found = findNextEvolution(child, name);
+    if(found) return found;
+  }
+  return null;
+}
+
 async function renderQuiz(){
   const record = getDailyQuizRecord();
-  els.quizDate.textContent = record.date;
+  els.quizDate.textContent = formatDisplayDate(record.date);
+  renderStreak();
+  renderDailyHistory();
+
+  if(record.answered){
+    renderQuizLocked(record);
+    return;
+  }
+
   try{
     const res = await fetch(`${API}/pokemon/${record.pokemonId}`);
     const data = await res.json();
-    const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
-
-    if(record.answered){
-      els.quizBody.innerHTML = `
-        <div class="quiz-card">
-          <img src="${sprite}" alt="${data.name}" style="width:180px;height:180px;margin:0 auto 14px;display:block;" />
-          <div class="quiz-question">${record.correct ? t('quizYourAnswerCorrect', capitalize(data.name.replace(/-/g,' '))) : t('quizYourAnswerWrong', capitalize(data.name.replace(/-/g,' ')))}</div>
-          <p style="font-weight:700; color:#9AA3B5;">${t('quizAlreadyPlayed')}</p>
-          <div class="quiz-streak">${t('quizScoreLine', state.progress.quizCorrect, state.progress.quizTotal)}</div>
-        </div>
-      `;
-      return;
+    let built = await buildDailyQuestion(record.category, data);
+    if(!built){
+      // this Pokémon doesn't support today's category (e.g. no evolution data) —
+      // fall back to a category that always works, and remember the swap.
+      record.category = 'type';
+      saveDailyQuizRecord(record);
+      built = await buildDailyQuestion('type', data);
     }
-
-    const pool = state.allNames.length ? state.allNames : [];
-    const shuffled = [...pool].sort(()=> Math.random()-0.5);
-    const distractors = [];
-    for(const p of shuffled){
-      if(p.name !== data.name && !distractors.includes(p.name)) distractors.push(p.name);
-      if(distractors.length >= 3) break;
-    }
-    while(distractors.length < 3){ distractors.push(data.name + '-x' + distractors.length); }
-    const choices = [...distractors, data.name].sort(()=> Math.random()-0.5);
-
-    els.quizBody.innerHTML = `
-      <div class="quiz-card">
-        <img src="${sprite}" alt="mystery" class="guess-silhouette" id="quizImg" style="width:180px;height:180px;margin:0 auto 14px;display:block;" />
-        <div class="quiz-question">${t('quizQuestion')}</div>
-        <div class="quiz-choices" id="quizChoices">
-          ${choices.map(name=>`<button class="quiz-choice" data-name="${name}">${capitalize(name.replace(/-/g,' '))}</button>`).join('')}
-        </div>
-      </div>
-    `;
-    els.quizBody.querySelectorAll('.quiz-choice').forEach(btn=>{
-      btn.addEventListener('click', ()=> answerQuiz(btn, data.name, record));
-    });
+    renderQuizQuestion(record, data, built);
   }catch(e){
     console.error(e);
     els.quizBody.innerHTML = `<p>${t('catalogLoadFail')}</p>`;
   }
 }
 
-function answerQuiz(btn, correctName, record){
-  const chosen = btn.dataset.name;
-  const correct = chosen === correctName;
+function renderQuizQuestion(record, data, built){
+  const sprite = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+  const imgClass = built.imageMode === 'silhouette' ? 'guess-silhouette' : 'guess-silhouette revealed';
+  els.quizBody.innerHTML = `
+    <div class="quiz-card">
+      <img src="${sprite}" alt="mystery" class="${imgClass}" id="quizImg" style="width:180px;height:180px;margin:0 auto 14px;display:block;" />
+      ${built.imageMode === 'reveal' ? `<div class="quiz-pokemon-name">${capitalize(data.name.replace(/-/g,' '))}</div>` : ''}
+      <div class="quiz-question">${built.questionText}</div>
+      <div class="quiz-choices" id="quizChoices">
+        ${built.choices.map(c=>`<button class="quiz-choice" data-value="${c.replace(/"/g,'&quot;')}">${c}</button>`).join('')}
+      </div>
+    </div>
+  `;
+  els.quizBody.querySelectorAll('.quiz-choice').forEach(btn=>{
+    btn.addEventListener('click', ()=> answerQuiz(btn, built.correctDisplay, record, data));
+  });
+}
+
+function answerQuiz(btn, correctDisplay, record, data){
+  const chosen = btn.dataset.value;
+  const correct = chosen === correctDisplay;
 
   els.quizBody.querySelectorAll('.quiz-choice').forEach(b=>{
     b.disabled = true;
-    if(b.dataset.name === correctName) b.classList.add('correct');
+    if(b.dataset.value === correctDisplay) b.classList.add('correct');
     else if(b === btn) b.classList.add('wrong');
   });
   const img = document.getElementById('quizImg');
@@ -2311,6 +2516,9 @@ function answerQuiz(btn, correctName, record){
 
   record.answered = true;
   record.correct = correct;
+  record.correctDisplay = correctDisplay;
+  record.userDisplay = chosen;
+  record.pokemonName = data.name;
   saveDailyQuizRecord(record);
 
   state.progress.quizTotal += 1;
@@ -2318,8 +2526,118 @@ function answerQuiz(btn, correctName, record){
   else{ playThrow(); }
   saveProgress();
   checkAchievements();
+  updateStreakAndHistory(record);
 
   setTimeout(()=> renderQuiz(), 900);
+}
+
+function updateStreakAndHistory(record){
+  const today = record.date;
+  const yesterday = dateStrOffset(today, -1);
+  let streak = parseInt(localStorage.getItem('pokedex_daily_streak') || '0', 10);
+  const lastDate = localStorage.getItem('pokedex_daily_streak_date');
+  streak = (lastDate === yesterday) ? streak + 1 : 1;
+  localStorage.setItem('pokedex_daily_streak', String(streak));
+  localStorage.setItem('pokedex_daily_streak_date', today);
+
+  let history = JSON.parse(localStorage.getItem('pokedex_daily_history') || '[]');
+  history = history.filter(h=> h.date !== today);
+  history.unshift({ date: today, pokemonName: record.pokemonName, correct: record.correct });
+  history = history.slice(0,7);
+  localStorage.setItem('pokedex_daily_history', JSON.stringify(history));
+}
+
+function renderStreak(){
+  const streak = parseInt(localStorage.getItem('pokedex_daily_streak') || '0', 10);
+  const lastDate = localStorage.getItem('pokedex_daily_streak_date');
+  const today = todayDateStr();
+  const yesterday = dateStrOffset(today, -1);
+  // A streak only stays "alive" on screen if it was earned today or yesterday;
+  // otherwise a day was missed and it reads as broken until the next play.
+  const effectiveStreak = (lastDate === today || lastDate === yesterday) ? streak : 0;
+
+  els.streakFire.classList.toggle('streak-fire-lit', effectiveStreak > 0);
+  els.streakSub.textContent = effectiveStreak > 0 ? t('keepStreakAlive') : t('startStreakToday');
+  animateStreakCount(effectiveStreak);
+}
+
+function animateStreakCount(target){
+  let cur = 0;
+  const step = Math.max(1, Math.round(target/16));
+  const timer = setInterval(()=>{
+    cur += step;
+    if(cur >= target){ cur = target; clearInterval(timer); }
+    els.streakCount.textContent = cur;
+  }, 30);
+}
+
+function renderDailyHistory(){
+  const history = JSON.parse(localStorage.getItem('pokedex_daily_history') || '[]');
+  if(history.length === 0){
+    els.historyList.innerHTML = `
+      <div class="history-empty">
+        <p class="history-empty-title">${t('noHistoryYet')}</p>
+        <p class="history-empty-sub">${t('startTodaysQuizPrompt')}</p>
+        <button class="btn btn-primary" id="historyStartBtn">${t('startTodaysQuiz')}</button>
+      </div>`;
+    const btn = document.getElementById('historyStartBtn');
+    if(btn) btn.addEventListener('click', ()=> els.quizBody.scrollIntoView({behavior:'smooth', block:'center'}));
+    return;
+  }
+  const today = todayDateStr();
+  const yesterday = dateStrOffset(today, -1);
+  els.historyList.innerHTML = history.map((h,i)=>{
+    const label = h.date === today ? t('todayLabel') : h.date === yesterday ? t('yesterdayLabel') : formatShortDate(h.date);
+    return `
+      <div class="history-item" style="animation-delay:${i*70}ms">
+        <div class="history-item-date">${label}</div>
+        <div class="history-item-mid">
+          <span class="history-item-icon">${h.correct ? '✅' : '❌'}</span>
+          <span class="history-item-name">${capitalize((h.pokemonName||'').replace(/-/g,' '))}</span>
+        </div>
+        <div class="history-item-score">${h.correct ? 1 : 0} / 1</div>
+      </div>`;
+  }).join('');
+}
+
+function renderQuizLocked(record){
+  els.quizBody.innerHTML = `
+    <div class="quiz-card locked-card">
+      <div class="quiz-fx" id="quizFx"></div>
+      <div class="quiz-lock-icon">${record.correct ? '✅' : '❌'}</div>
+      <div class="quiz-result-badge ${record.correct ? 'badge-correct' : 'badge-wrong'}">${record.correct ? t('quizCorrectTitle') : t('quizWrongTitle')}</div>
+      <p class="quiz-result-sub">${record.correct ? t('quizCorrectExplain', record.correctDisplay) : t('quizWrongExplain', record.correctDisplay)}</p>
+      <p class="quiz-result-note">${record.correct ? t('quizCorrectNote') : t('quizWrongNote')}</p>
+      <p class="result-label" style="margin-top:18px;">${t('todaysScoreLabel')}</p>
+      <div class="quiz-today-score">${record.correct ? 1 : 0} / 1</div>
+    </div>
+  `;
+  if(record.correct){
+    const fx = document.getElementById('quizFx');
+    if(fx) spawnDailyQuizFx(fx);
+  }
+}
+
+function spawnDailyQuizFx(container){
+  const colors = ['#FFD93D','#7ED957','#6EC6FF','#A78BFA'];
+  for(let i=0;i<10;i++){
+    const c = document.createElement('div');
+    c.className = 'fx-confetti';
+    c.style.left = (Math.random()*100) + '%';
+    c.style.background = colors[i % colors.length];
+    c.style.animationDelay = (Math.random()*0.4) + 's';
+    c.style.animationDuration = (1.3 + Math.random()*0.6) + 's';
+    container.appendChild(c);
+  }
+  for(let i=0;i<8;i++){
+    const s = document.createElement('div');
+    s.className = 'fx-sparkle';
+    s.textContent = '✨';
+    s.style.left = (10 + Math.random()*80) + '%';
+    s.style.top = (20 + Math.random()*55) + '%';
+    s.style.animationDelay = (Math.random()*0.5) + 's';
+    container.appendChild(s);
+  }
 }
 
 /* ---------------- PNG EXPORT / SHARE ---------------- */
