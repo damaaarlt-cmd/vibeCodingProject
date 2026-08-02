@@ -2498,6 +2498,9 @@ async function renderQuiz(){
   renderDailyHistory();
 
   if(record.answered){
+    if(!record.spriteUrl || !record.questionText){
+      await backfillDailyRecordVisuals(record);
+    }
     renderQuizLocked(record);
     return;
   }
@@ -2513,6 +2516,9 @@ async function renderQuiz(){
       saveDailyQuizRecord(record);
       built = await buildDailyQuestion('type', data);
     }
+    record.spriteUrl = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+    record.questionText = built.questionText;
+    saveDailyQuizRecord(record);
     renderQuizQuestion(record, data, built);
   }catch(e){
     console.error(e);
@@ -2636,11 +2642,28 @@ function renderDailyHistory(){
   }).join('');
 }
 
+// For a locked record saved before sprites/questions were persisted (older
+// localStorage data), fetch just enough to fill those fields in for display.
+async function backfillDailyRecordVisuals(record){
+  try{
+    const res = await fetch(`${API}/pokemon/${record.pokemonId}`);
+    const data = await res.json();
+    record.spriteUrl = (data.sprites.other && data.sprites.other['official-artwork'].front_default) || data.sprites.front_default;
+    if(!record.pokemonName) record.pokemonName = data.name;
+    const built = await buildDailyQuestion(record.category, data);
+    if(built) record.questionText = built.questionText;
+    saveDailyQuizRecord(record);
+  }catch(e){
+    console.error(e);
+  }
+}
+
 function renderQuizLocked(record){
   els.quizBody.innerHTML = `
     <div class="quiz-card locked-card">
       <div class="quiz-fx" id="quizFx"></div>
-      <div class="quiz-lock-icon">${record.correct ? '✅' : '❌'}</div>
+      ${record.spriteUrl ? `<img src="${record.spriteUrl}" alt="${record.pokemonName||''}" class="guess-silhouette revealed quiz-locked-img" />` : ''}
+      ${record.questionText ? `<div class="quiz-question quiz-question-locked">${record.questionText}</div>` : ''}
       <div class="quiz-result-badge ${record.correct ? 'badge-correct' : 'badge-wrong'}">${record.correct ? t('quizCorrectTitle') : t('quizWrongTitle')}</div>
       <p class="quiz-result-sub">${record.correct ? t('quizCorrectExplain', record.correctDisplay) : t('quizWrongExplain', record.correctDisplay)}</p>
       <p class="quiz-result-note">${record.correct ? t('quizCorrectNote') : t('quizWrongNote')}</p>
