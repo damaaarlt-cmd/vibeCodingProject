@@ -1126,11 +1126,14 @@ body.dark .quiz-choice{ background: rgba(255,255,255,.06); color:#fff; }
 .quiz-choice.wrong{ border-color: var(--red); background: rgba(255,77,77,.14); }
 
 /* locked / result card */
-.quiz-card.locked-card{ padding-top:36px; }
+.quiz-card.locked-card{ padding-top:30px; }
 .quiz-fx{ position:absolute; inset:-20px -10px auto -10px; height:200px; pointer-events:none; overflow:visible; z-index:0; }
-.quiz-lock-icon{
-  position:relative; z-index:1; font-size:3rem; margin-bottom:8px;
+.quiz-locked-img{
+  position:relative; z-index:1; width:140px; height:140px; margin:0 auto 12px; display:block;
   animation: rank-badge-pop .5s cubic-bezier(.34,1.56,.64,1) both;
+}
+.quiz-question-locked{
+  position:relative; z-index:1; font-weight:700; font-size:.92rem; color:#9AA3B5; margin-bottom:16px;
 }
 .quiz-result-badge{
   position:relative; z-index:1; display:inline-block; font-family: var(--font-display); font-weight:700; font-size:1.2rem;
