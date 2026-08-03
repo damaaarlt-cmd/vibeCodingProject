@@ -1910,7 +1910,7 @@ document.getElementById('victoryCloseBtn')?.addEventListener('click', () => {
 function playVictorySound() {
   if (!state.soundOn) return;
   try {
-    const victorySound = new Audio('assets/GAMECas-Casino_grand_prize_w-Elevenlabs.mp3');
+    const victorySound = new Audio('/assets/GAMECas-Casino_grand_prize_w-Elevenlabs.mp3');
     victorySound.volume = 0.8;
     victorySound.play().catch(e => {
       console.warn("Browser memblokir pemutaran audio otomatis:", e);
