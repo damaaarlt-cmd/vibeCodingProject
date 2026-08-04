@@ -3,13 +3,70 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pokédex — Pokémon Encyclopedia</title>
+
+<!-- ============ SEO: PRIMARY META ============ -->
+<title>Pokédex — Ensiklopedia, Battle, Compare & Kuis Harian Pokémon</title>
+<meta name="description" content="Jelajahi ensiklopedia Pokémon lengkap: cari & bandingkan statistik Pokémon, battle VS, tebak siluet Who's That Pokémon, dan Kuis Harian dengan sistem streak. Gratis, ringan, dan interaktif." />
+<meta name="keywords" content="pokedex, pokemon, ensiklopedia pokemon, pokemon indonesia, battle pokemon, compare pokemon, kuis pokemon harian, tebak pokemon, who's that pokemon" />
+<meta name="author" content="Pokédex — Pokémon Encyclopedia" />
+<meta name="robots" content="index, follow, max-image-preview:large" />
+<link rel="canonical" href="https://pokedex-pokemon-encyclopedia.vercel.app/" />
+
+<!-- ============ SEO: OPEN GRAPH (Facebook/WhatsApp/Discord preview) ============ -->
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Pokédex — Pokémon Encyclopedia" />
+<meta property="og:title" content="Pokédex — Ensiklopedia, Battle, Compare & Kuis Harian Pokémon" />
+<meta property="og:description" content="Cari & bandingkan Pokémon, battle VS, tebak siluet, dan mainkan Kuis Harian dengan sistem streak dan Trainer Rank." />
+<meta property="og:image" content="https://pokedex-pokemon-encyclopedia.vercel.app/assets/og-image.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://pokedex-pokemon-encyclopedia.vercel.app/" />
+<meta property="og:locale" content="id_ID" />
+<meta property="og:locale:alternate" content="en_US" />
+
+<!-- ============ SEO: TWITTER / X CARD ============ -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Pokédex — Ensiklopedia, Battle, Compare & Kuis Harian Pokémon" />
+<meta name="twitter:description" content="Cari & bandingkan Pokémon, battle VS, tebak siluet, dan mainkan Kuis Harian dengan sistem streak dan Trainer Rank." />
+<meta name="twitter:image" content="https://pokedex-pokemon-encyclopedia.vercel.app/assets/og-image.png" />
+
+<meta name="theme-color" content="#FF4D4D" />
+<link rel="icon" href="assets/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
+<link rel="manifest" href="manifest.json" />
+
+<!-- ============ SEO: STRUCTURED DATA (JSON-LD) ============ -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Pokédex — Pokémon Encyclopedia",
+  "url": "https://pokedex-pokemon-encyclopedia.vercel.app/",
+  "description": "Ensiklopedia Pokémon interaktif: pencarian & perbandingan Pokémon, battle VS, tebak siluet Who's That Pokémon, dan Kuis Harian dengan streak serta Trainer Rank.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "inLanguage": ["id", "en"]
+}
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+<!-- Fallback content for search engines / users without JavaScript enabled -->
+<noscript>
+  <div style="max-width:640px;margin:60px auto;padding:24px;font-family:sans-serif;text-align:center;">
+    <h1>Pokédex — Pokémon Encyclopedia</h1>
+    <p>Ensiklopedia Pokémon interaktif dengan fitur pencarian, perbandingan statistik, battle VS, tebak siluet Who's That Pokémon, dan Kuis Harian bersistem streak dan Trainer Rank.</p>
+    <p>Aplikasi ini membutuhkan JavaScript untuk berjalan. Silakan aktifkan JavaScript di browser kamu.</p>
+  </div>
+</noscript>
 
 <!-- ============ ANIMATED BACKGROUND ============ -->
 <div class="bg-layer" id="bgLayer" aria-hidden="true">
@@ -362,6 +419,8 @@
       <p id="quizDate" class="quiz-date"></p>
     </div>
 
+    <div id="quizBody"></div>
+
     <div class="streak-card" id="streakCard">
       <div class="streak-fire" id="streakFire">🔥</div>
       <div class="streak-info">
@@ -370,10 +429,6 @@
         <p class="streak-sub" id="streakSub"></p>
       </div>
     </div>
-
-    <div id="quizBody"></div>
-
-    
 
     <div class="daily-history">
       <h2 class="history-title" data-i18n="last7DaysTitle">Last 7 Days</h2>
